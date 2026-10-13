@@ -1,12 +1,12 @@
 import Dexie, { type Table } from 'dexie';
 
-export interface Livro {}
+export interface Livro { }
 
-export interface Capitulo {}
+export interface Capitulo { }
 
-export interface Resumo {}
+export interface Resumo { }
 
-export interface Quiz {}
+export interface Quiz { }
 
 export class EasyReadDatabase extends Dexie {
   livros!: Table<Livro>;
@@ -18,9 +18,9 @@ export class EasyReadDatabase extends Dexie {
     super('EasyReadDB');
     this.version(2).stores({
       livros: '++id',
-      capitulos: '++id',
-      resumos: '++id',
-      quizzes: '++id'
+      capitulos: '++id, livroId',
+      resumos: '++id, capituloId',
+      quizzes: '++id, capituloId'
     });
   }
 }
