@@ -1,0 +1,35 @@
+{
+  "livros": [
+    {
+      "id": 1,
+      "titulo": "Dom Casmurro",
+      "autor": "Machado de Assis"
+    }
+  ],
+  "capitulos": [
+    {
+      "id": 1,
+      "livroId": 1,
+      "numero": 1,
+      "titulo": "Do Título",
+      "texto": "Uma noite destas, vindo da cidade para o Engenho Novo, encontrei no trem da Central um rapaz aqui do bairro, que eu conheço de vista e de chapéu..."
+    }
+  ],
+  "resumos": [
+    {
+      "id": 1,
+      "capituloId": 1,
+      "conteudo": "O narrador explica a origem do apelido 'Dom Casmurro', dado por um jovem que tentou ler versos para ele no trem.",
+      "dataCriacao": "2026-10-16T12:00:00.000Z"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": 1,
+      "capituloId": 1,
+      "pergunta": "Onde o narrador encontrou o rapaz que lhe deu o apelido?",
+      "opcoes": ["No trem da Central", "Na praça", "Na livraria", "Na igreja"],
+      "respostaCorreta": "No trem da Central"
+    }
+  ]
+}
