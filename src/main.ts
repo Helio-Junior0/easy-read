@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
+import router from './router'
 import { popularBancoSeVazio } from './services/seedService'
 
 async function iniciarApp() {
@@ -10,7 +11,7 @@ async function iniciarApp() {
     console.error('Erro ao popular o banco de dados:', erro)
   }
 
-  createApp(App).mount('#app')
+  createApp(App).use(router).mount('#app')
 }
 
 iniciarApp()
