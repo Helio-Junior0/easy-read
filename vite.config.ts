@@ -21,10 +21,12 @@ export default defineConfig({
         icons: [
           { src: 'logoo_easyread_little.png', sizes: '192x192', type: 'image/png' },
           { src: 'logo_easyread.png', sizes: '512x512', type: 'image/png' },
+          { src: 'logo_easyread.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
+      includeManifestIcons: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
       },
