@@ -3,10 +3,8 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header class="cabecalho">
-    <div class="cabecalho__conteudo">
-      <RouterLink to="/" class="cabecalho__marca">Easy Read</RouterLink>
-    </div>
+  <header class="barra-app">
+    <RouterLink to="/" class="barra-app__titulo">Easy Read</RouterLink>
   </header>
 
   <main class="conteudo">
@@ -15,42 +13,56 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-.cabecalho {
+.barra-app {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--cor-primaria);
-  border-bottom: 4px solid var(--cor-destaque);
-}
-
-.cabecalho__conteudo {
-  max-width: var(--largura-maxima);
-  margin: 0 auto;
-  padding: 0 1rem;
-  min-height: 56px;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
+  justify-content: flex-start;
   align-items: center;
+  min-height: 110px;
+  padding: 1.75rem 3rem;
+  background: var(--cor-primaria);
+  border-bottom: 7px solid var(--cor-destaque);
 }
 
-.cabecalho__marca {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.barra-app__titulo {
   color: var(--cor-texto-claro);
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-decoration: none;
+  border: 0;
+  outline: none;
 }
 
-.cabecalho__marca:hover {
+.barra-app__titulo:hover {
   color: var(--cor-destaque);
 }
 
-.cabecalho__marca:focus-visible {
-  outline-color: var(--cor-destaque);
+.barra-app__titulo:focus-visible {
+  outline: 2px solid var(--cor-destaque);
+  outline-offset: 4px;
 }
 
+/* Sem limite de largura: a Home ocupa a tela inteira */
 .conteudo {
-  max-width: var(--largura-maxima);
-  margin: 0 auto;
-  padding: 1.25rem 1rem 3rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 600px) {
+  .barra-app {
+    min-height: 83px;
+    padding: 1.1rem 1.25rem;
+  }
+
+  .barra-app__titulo {
+    font-size: 2.05rem;
+  }
 }
 </style>
