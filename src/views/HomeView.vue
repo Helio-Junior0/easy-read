@@ -2,8 +2,7 @@
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
-// Categorias disponíveis nos filtros. Para adicionar uma, inclua o nome aqui
-// e use o mesmo nome no campo `categoria` do livro.
+
 const categorias = [
   'Romance',
   'Clássicos',
@@ -24,7 +23,6 @@ type Livro = {
   capa: string
 }
 
-// Dados de exemplo: ainda não vêm do banco
 const livros: Livro[] = [
   {
     id: 1,
@@ -58,7 +56,6 @@ type Filtro = (typeof filtros)[number]
 const filtroAtivo = ref<Filtro>('Todos')
 const busca = ref('')
 
-// Remove acentos e deixa tudo em minúsculo, para a busca ignorar maiúsculas e acentos
 function normalizar(texto: string) {
   return texto
     .toLowerCase()
@@ -82,7 +79,6 @@ const livrosFiltrados = computed(() => {
   })
 })
 
-// Quantidade de livros registrados na categoria e na busca atuais
 const contagem = computed(() => {
   const n = livrosFiltrados.value.length
   return `${n} ${n === 1 ? 'livro registrado' : 'livros registrados'}`
@@ -146,7 +142,7 @@ const contagem = computed(() => {
 
 <style scoped>
 .home {
-  /* Ocupa a largura total da tela, mesmo dentro de um pai centralizado */
+  
   width: 100vw;
   max-width: 100vw;
   margin-left: calc(50% - 50vw);
@@ -156,7 +152,7 @@ const contagem = computed(() => {
   overflow-x: hidden;
 }
 
-/* Barra de pesquisa logo abaixo da barra vermelha */
+
 .busca {
   margin-bottom: 2rem;
 }
@@ -244,7 +240,6 @@ const contagem = computed(() => {
   opacity: 0.75;
 }
 
-/* Desktop: cards lado a lado, com no mínimo 460px cada */
 .lista-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
