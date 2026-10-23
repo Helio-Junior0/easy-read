@@ -1,8 +1,10 @@
 //Livros
 export interface Livro {
-    id?: number;
-    titulo: string;
-    autor: string;
+  id?: number;
+  titulo: string;
+  autor: string;
+  descricao?: string;
+  categoria?: string;
 }
 
 //Capitulos

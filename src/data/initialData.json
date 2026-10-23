@@ -3,7 +3,9 @@
     {
       "id": 1,
       "titulo": "Dom Casmurro",
-      "autor": "Machado de Assis"
+      "autor": "Machado de Assis",
+      "descricao": "Uma das maiores obras da literatura brasileira, explorando ciúme, memória e ambiguidade no relacionamento entre Bentinho e Capitu.",
+      "categoria": "Romance Brasileiro"
     }
   ],
   "capitulos": [
