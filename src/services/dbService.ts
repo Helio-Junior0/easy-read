@@ -23,6 +23,10 @@ export async function buscarCapitulosPorLivro(livroId: number): Promise<Capitulo
   return await db.capitulos.where('livroId').equals(livroId).sortBy('numero');
 }
 
+export async function buscarCapituloPorId(id: number): Promise<Capitulo | undefined> {
+  return await db.capitulos.get(id);
+}
+
 export async function salvarResumo(resumo: Resumo): Promise<number> {
   const id = await db.resumos.add(resumo);
   return Number(id);
