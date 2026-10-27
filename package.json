@@ -10,7 +10,12 @@
   },
   "dependencies": {
     "dexie": "^4.4.6",
+<<<<<<< Updated upstream
     "vue": "^3.5.42"
+=======
+    "vue": "^3.5.42",
+    "vue-router": "^4.6.4"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
