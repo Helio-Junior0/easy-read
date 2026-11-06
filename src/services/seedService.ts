@@ -1,25 +1,30 @@
-import { db } from '../db/index';
+import { db } from '../db';
 import initialData from '../data/initialData.json';
+import type { Livro, Capitulo } from '../types';
 
-export async function popularBancoSeVazio(): Promise<boolean> {
-  const quantidadeLivros = await db.livros.count();
+export async function popularBancoSeVazio(): Promise<void> {
+  try {
+    const countLivros = await db.livros.count();
+    if (countLivros === 0) {
+      await db.livros.bulkAdd(initialData as unknown as Livro[]);
 
-  if (quantidadeLivros > 0) {
-    return false;
+      const todosCapitulos: Capitulo[] = [];
+      for (const livro of initialData) {
+        if (livro.capitulos && Array.isArray(livro.capitulos)) {
+          for (const cap of livro.capitulos) {
+            todosCapitulos.push({
+              ...cap,
+              livroId: livro.id
+            } as unknown as Capitulo);
+          }
+        }
+      }
+
+      if (todosCapitulos.length > 0) {
+        await db.capitulos.bulkAdd(todosCapitulos);
+      }
+    }
+  } catch (error) {
+    console.error(error);
   }
-
-  await db.transaction('rw', [db.livros, db.capitulos, db.resumos, db.quizzes], async () => {
-    await db.livros.bulkAdd(initialData.livros);
-    await db.capitulos.bulkAdd(initialData.capitulos);
-
-    const resumosParaInserir = initialData.resumos.map((resumo) => ({
-      ...resumo,
-      dataCriacao: new Date(resumo.dataCriacao)
-    }));
-    await db.resumos.bulkAdd(resumosParaInserir);
-
-    await db.quizzes.bulkAdd(initialData.quizzes);
-  });
-
-  return true;
 }

@@ -1,37 +1,533 @@
-{
-  "livros": [
-    {
-      "id": 1,
-      "titulo": "Dom Casmurro",
-      "autor": "Machado de Assis",
-      "descricao": "Uma das maiores obras da literatura brasileira, explorando ciúme, memória e ambiguidade no relacionamento entre Bentinho e Capitu.",
-      "categoria": "Romance Brasileiro"
-    }
-  ],
-  "capitulos": [
-    {
-      "id": 1,
-      "livroId": 1,
-      "numero": 1,
-      "titulo": "Do Título",
-      "texto": "Uma noite destas, vindo da cidade para o Engenho Novo, encontrei no trem da Central um rapaz aqui do bairro, que eu conheço de vista e de chapéu..."
-    }
-  ],
-  "resumos": [
-    {
-      "id": 1,
-      "capituloId": 1,
-      "conteudo": "O narrador explica a origem do apelido 'Dom Casmurro', dado por um jovem que tentou ler versos para ele no trem.",
-      "dataCriacao": "2026-10-16T12:00:00.000Z"
-    }
-  ],
-  "quizzes": [
-    {
-      "id": 1,
-      "capituloId": 1,
-      "pergunta": "Onde o narrador encontrou o rapaz que lhe deu o apelido?",
-      "opcoes": ["No trem da Central", "Na praça", "Na livraria", "Na igreja"],
-      "respostaCorreta": "No trem da Central"
-    }
-  ]
-}
+[
+  {
+    "id": "pense-em-python",
+    "titulo": "Pense em Python",
+    "subtitulo": "Pense como um cientista da computação",
+    "autor": "Allen B. Downey",
+    "editora": "Novatec / O'Reilly",
+    "edicao": "2ª Edição",
+    "versao_python": "Python 3",
+    "isbn": "978-1-4919-3936-9",
+    "tipo": "Livro",
+    "categorias": [
+      "Programação",
+      "Python",
+      "Ciência da Computação"
+    ],
+    "descricao": "Uma introdução ao pensamento computacional e à programação utilizando a linguagem Python 3, abordando desde conceitos básicos de algoritmos e estruturas de dados até orientação a objetos.",
+    "capitulos": [
+      {
+        "id": "pep-cap-01",
+        "numero": 1,
+        "titulo": "A jornada do programa",
+        "secoes": [
+          "1.1 - O que é um programa?",
+          "1.2 - Execução do Python",
+          "1.3 - O primeiro programa",
+          "1.4 - Operadores aritméticos",
+          "1.5 - Valores e tipos",
+          "1.6 - Linguagens formais e naturais",
+          "1.7 - Depuração",
+          "1.8 - Glossário",
+          "1.9 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-02",
+        "numero": 2,
+        "titulo": "Variáveis, expressões e instruções",
+        "secoes": [
+          "2.1 - Instruções de atribuição",
+          "2.2 - Nomes de variáveis",
+          "2.3 - Expressões e instruções",
+          "2.4 - Modo interativo e modo de script",
+          "2.5 - Ordem das operações",
+          "2.6 - Operações com strings",
+          "2.7 - Comentários",
+          "2.8 - Depuração",
+          "2.9 - Glossário",
+          "2.10 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-03",
+        "numero": 3,
+        "titulo": "Funções",
+        "secoes": [
+          "3.1 - Chamadas de funções",
+          "3.2 - Funções matemáticas",
+          "3.3 - Composição",
+          "3.4 - Adição de novas funções",
+          "3.5 - Uso e definições",
+          "3.6 - Fluxo de execução",
+          "3.7 - Parâmetros e argumentos",
+          "3.8 - Variáveis e parâmetros são locais",
+          "3.9 - Diagramas da pilha",
+          "3.10 - Funções com resultado e funções nulas",
+          "3.11 - Por que funções?",
+          "3.12 - Depuração",
+          "3.13 - Glossário",
+          "3.14 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-04",
+        "numero": 4,
+        "titulo": "Estudo de caso: projeto de interface",
+        "secoes": [
+          "4.1 - Módulo turtle",
+          "4.2 - Repetição simples",
+          "4.3 - Exercícios do turtle",
+          "4.4 - Encapsulamento",
+          "4.5 - Generalização",
+          "4.6 - Projeto de interface",
+          "4.7 - Refatoração",
+          "4.8 - Um plano de desenvolvimento",
+          "4.9 - Docstring",
+          "4.10 - Depuração",
+          "4.11 - Glossário",
+          "4.12 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-05",
+        "numero": 5,
+        "titulo": "Condicionais e recursividade",
+        "secoes": [
+          "5.1 - Divisão pelo piso e módulo",
+          "5.2 - Expressões booleanas",
+          "5.3 - Operadores lógicos",
+          "5.4 - Execução condicional",
+          "5.5 - Condicionais alternativas",
+          "5.6 - Condicionais encadeadas",
+          "5.7 - Condicionais aninhadas",
+          "5.8 - Recursividade",
+          "5.9 - Diagramas de pilha para funções recursivas",
+          "5.10 - Recursividade infinita",
+          "5.11 - Entrada pelo teclado",
+          "5.12 - Depuração",
+          "5.13 - Glossário",
+          "5.14 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-06",
+        "numero": 6,
+        "titulo": "Funções com resultado",
+        "secoes": [
+          "6.1 - Valores de retorno",
+          "6.2 - Desenvolvimento incremental",
+          "6.3 - Composição de funções",
+          "6.4 - Funções booleanas",
+          "6.5 - Mais recursividade",
+          "6.6 - Salto de fé",
+          "6.7 - Mais um exemplo (Fibonacci)",
+          "6.8 - Verificação de tipos",
+          "6.9 - Depuração",
+          "6.10 - Glossário",
+          "6.11 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-07",
+        "numero": 7,
+        "titulo": "Iteração",
+        "secoes": [
+          "7.1 - Reatribuição",
+          "7.2 - Atualização de variáveis",
+          "7.3 - A instrução while",
+          "7.4 - A instrução break",
+          "7.5 - Raízes quadradas (Método de Newton)",
+          "7.6 - Algoritmos",
+          "7.7 - Depuração",
+          "7.8 - Glossário",
+          "7.9 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-08",
+        "numero": 8,
+        "titulo": "Strings",
+        "secoes": [
+          "8.1 - Uma string é uma sequência",
+          "8.2 - Uso de len()",
+          "8.3 - Travessia com um loop for",
+          "8.4 - Fatiamento de strings",
+          "8.5 - Strings são imutáveis",
+          "8.6 - Buscando caracteres",
+          "8.7 - Loop e contagem",
+          "8.8 - Métodos de strings",
+          "8.9 - O operador in",
+          "8.10 - Comparação de strings",
+          "8.11 - Depuração",
+          "8.12 - Glossário",
+          "8.13 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-09",
+        "numero": 9,
+        "titulo": "Estudo de caso: jogos de palavras",
+        "secoes": [
+          "9.1 - Leitura de listas de palavras",
+          "9.2 - Exercícios com palavras",
+          "9.3 - Busca e travessia em arquivos",
+          "9.4 - Loop com condicionais",
+          "9.5 - Depuração",
+          "9.6 - Glossário",
+          "9.7 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-10",
+        "numero": 10,
+        "titulo": "Listas",
+        "secoes": [
+          "10.1 - Uma lista é uma sequência",
+          "10.2 - Listas são mutáveis",
+          "10.3 - Percorrendo uma lista",
+          "10.4 - Operações com listas",
+          "10.5 - Fatiamento de listas",
+          "10.6 - Métodos de listas",
+          "10.7 - Mapeamento, filtragem e redução",
+          "10.8 - Exclusão de elementos",
+          "10.9 - Listas e strings",
+          "10.10 - Objetos e valores",
+          "10.11 - Apelidando (Aliasing)",
+          "10.12 - Argumentos de listas",
+          "10.13 - Depuração",
+          "10.14 - Glossário",
+          "10.15 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-11",
+        "numero": 11,
+        "titulo": "Dicionários",
+        "secoes": [
+          "11.1 - Um dicionário é um mapeamento",
+          "11.2 - Um dicionário como um conjunto de contadores",
+          "11.3 - Loop e dicionários",
+          "11.4 - Busca reversa",
+          "11.5 - Dicionários e listas",
+          "11.6 - Memos (Memoização)",
+          "11.7 - Variáveis globais",
+          "11.8 - Depuração",
+          "11.9 - Glossário",
+          "11.10 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-12",
+        "numero": 12,
+        "titulo": "Tuplas",
+        "secoes": [
+          "12.1 - Tuplas são imutáveis",
+          "12.2 - Atribuição de tuplas",
+          "12.3 - Tuplas como valores de retorno",
+          "12.4 - Tuplas com argumentos de comprimento variável",
+          "12.5 - Listas e tuplas (zip)",
+          "12.6 - Dicionários e tuplas",
+          "12.7 - Sequências de sequências",
+          "12.8 - Depuração",
+          "12.9 - Glossário",
+          "12.10 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-13",
+        "numero": 13,
+        "titulo": "Estudo de caso: seleção de estrutura de dados",
+        "secoes": [
+          "13.1 - Análise de frequência de palavras",
+          "13.2 - Números aleatórios",
+          "13.3 - Histograma de palavras",
+          "13.4 - Palavras mais comuns",
+          "13.5 - Parâmetros opcionais",
+          "13.6 - Subtração de dicionários",
+          "13.7 - Palavras aleatórias",
+          "13.8 - Análise de Markov",
+          "13.9 - Estruturas de dados",
+          "13.10 - Depuração",
+          "13.11 - Glossário",
+          "13.12 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-14",
+        "numero": 14,
+        "titulo": "Arquivos",
+        "secoes": [
+          "14.1 - Persistência de dados",
+          "14.2 - Leitura e escrita de arquivos",
+          "14.3 - Operador de formatação",
+          "14.4 - Nomes de arquivos e caminhos",
+          "14.5 - Captura de exceções",
+          "14.6 - Bancos de dados (dbm)",
+          "14.7 - Decapagem (Pickling)",
+          "14.8 - Pipes e arquivos de sistema",
+          "14.9 - Escrevendo módulos",
+          "14.10 - Depuração",
+          "14.11 - Glossário",
+          "14.12 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-15",
+        "numero": 15,
+        "titulo": "Classes e objetos",
+        "secoes": [
+          "15.1 - Tipos definidos pelos usuários",
+          "15.2 - Atributos de objetos",
+          "15.3 - Retângulos e instâncias",
+          "15.4 - Instâncias como valores de retorno",
+          "15.5 - Objetos são mutáveis",
+          "15.6 - Cópia simples e profunda (copy)",
+          "15.7 - Depuração",
+          "15.8 - Glossário",
+          "15.9 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-16",
+        "numero": 16,
+        "titulo": "Classes e funções",
+        "secoes": [
+          "16.1 - Tempo (Time)",
+          "16.2 - Funções puras",
+          "16.3 - Modificadores de objetos",
+          "16.4 - Prototipagem versus planejamento",
+          "16.5 - Depuração",
+          "16.6 - Glossário",
+          "16.7 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-17",
+        "numero": 17,
+        "titulo": "Classes e métodos",
+        "secoes": [
+          "17.1 - Recursos orientados a objetos",
+          "17.2 - Exibição de objetos",
+          "17.3 - Outro exemplo de método",
+          "17.4 - Um exemplo mais complexo",
+          "17.5 - O método __init__",
+          "17.6 - O método __str__",
+          "17.7 - Sobrecarga de operadores",
+          "17.8 - Despacho por tipo",
+          "17.9 - Polimorfismo",
+          "17.10 - Depuração",
+          "17.11 - Interface e implementação",
+          "17.12 - Glossário",
+          "17.13 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-18",
+        "numero": 18,
+        "titulo": "Herança",
+        "secoes": [
+          "18.1 - Objetos de cartas de baralho",
+          "18.2 - Atributos de classe",
+          "18.3 - Comparação de cartas",
+          "18.4 - Baralhos (Decks)",
+          "18.5 - Exibição do baralho",
+          "18.6 - Adição, remoção, embaralhamento e divisão",
+          "18.7 - Herança e a classe Mão (Hand)",
+          "18.8 - Diagramas de classe",
+          "18.9 - Depuração",
+          "18.10 - Data encapsulada",
+          "18.11 - Glossário",
+          "18.12 - Exercícios"
+        ]
+      },
+      {
+        "id": "pep-cap-19",
+        "numero": 19,
+        "titulo": "Extra",
+        "secoes": [
+          "19.1 - Expressões condicionais",
+          "19.2 - Compreensão de listas",
+          "19.3 - Expressões geradoras",
+          "19.4 - any e all",
+          "19.5 - Conjuntos (Sets)",
+          "19.6 - Contadores (Counters)",
+          "19.7 - defaultdict",
+          "19.8 - Tuplas nomeadas (namedtuple)",
+          "19.9 - Empacotamento e desempacotamento de argumentos (*args, **kwargs)",
+          "19.10 - Glossário"
+        ]
+      },
+      {
+        "id": "pep-cap-20",
+        "numero": 20,
+        "titulo": "Apêndice A: Depuração",
+        "secoes": [
+          "A.1 - Erros de sintaxe",
+          "A.2 - Erros em tempo de execução",
+          "A.3 - Erros semânticos"
+        ]
+      },
+      {
+        "id": "pep-cap-21",
+        "numero": 21,
+        "titulo": "Apêndice B: Análise de algoritmos",
+        "secoes": [
+          "B.1 - Ordem de crescimento (Notação Big-O)",
+          "B.2 - Análise de operações de estruturas de dados",
+          "B.3 - Tabela de complexidade"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cibernetica-norbert-wiener",
+    "titulo": "Cibernética",
+    "subtitulo": "Ou o controle e comunicação no animal e na máquina",
+    "autor": "Norbert Wiener",
+    "ano": 1948,
+    "tipo": "Livro",
+    "categorias": [
+      "Cibernética",
+      "Teoria dos Sistemas",
+      "Filosofia da Tecnologia"
+    ],
+    "descricao": "Obra seminal que fundou o campo da Cibernética, explorando os mecanismos de controlo, comunicação e feedback em organismos vivos e máquinas.",
+    "capitulos": [
+      {
+        "id": "cib-cap-00",
+        "numero": 0,
+        "titulo": "Introdução: Origens da Cibernética e História do Grupo de Pesquisa",
+        "secoes": [
+          "0.1 - Colaborações multidisciplinares na Segunda Guerra Mundial (Artur Rosenblueth e a neurofisiologia)",
+          "0.2 - O problema do controlo de tiro antiaéreo e previsão estatística",
+          "0.3 - Origem do termo Cibernética (do grego Kybernetes)",
+          "0.4 - A criação dos encontros da Fundação Macy e a integração entre máquina e sistema nervoso"
+        ]
+      },
+      {
+        "id": "cib-cap-01",
+        "numero": 1,
+        "titulo": "Capítulo 1: Tempo Newtoniano e Tempo Bergsoniano",
+        "secoes": [
+          "1.1 - A irreversibilidade do tempo físico e mecânica quântica",
+          "1.2 - Mecânica estatística de Gibbs e a entropia",
+          "1.3 - Autómatos e mecanismos na era da automação"
+        ]
+      },
+      {
+        "id": "cib-cap-02",
+        "numero": 2,
+        "titulo": "Capítulo 2: Grupos e Mecânica Estatística",
+        "secoes": [
+          "2.1 - Teoria ergódica e a medida da desordem",
+          "2.2 - Medida da informação e conceitos de entropia",
+          "2.3 - Transformações de grupo em sistemas físicos"
+        ]
+      },
+      {
+        "id": "cib-cap-03",
+        "numero": 3,
+        "titulo": "Capítulo 3: Feedback e Oscilação",
+        "secoes": [
+          "3.1 - Conceito e tipos de realimentação (Feedback)",
+          "3.2 - Servomecanismos e controlo no sistema nervoso biológico",
+          "3.3 - Ataxia voluntária e patologias de mau funcionamento de feedback"
+        ]
+      },
+      {
+        "id": "cib-cap-04",
+        "numero": 4,
+        "titulo": "Capítulo 4: Computadores e o Sistema Nervoso",
+        "secoes": [
+          "4.1 - Processamento digital versus analógico",
+          "4.2 - As sinapses neurais e portas lógicas comutadoras",
+          "4.3 - Mecanismos de memória e aprendizagem em máquinas e cérebro"
+        ]
+      },
+      {
+        "id": "cib-cap-05",
+        "numero": 5,
+        "titulo": "Capítulo 5: Computadores e Redes de Comunicação",
+        "secoes": [
+          "5.1 - Transmissão de mensagens em redes complexas",
+          "5.2 - Filtragem de sinais e previsão de séries temporais",
+          "5.3 - Teoria estatística da comunicação de sinais"
+        ]
+      },
+      {
+        "id": "cib-cap-06",
+        "numero": 6,
+        "titulo": "Capítulo 6: Gestalt e Universais",
+        "secoes": [
+          "6.1 - Perceção de formas e padrões pelo cérebro",
+          "6.2 - Reconhecimento de universais visuais e auditivos",
+          "6.3 - Modelagem de redes neurais para perceção de padrões"
+        ]
+      },
+      {
+        "id": "cib-cap-07",
+        "numero": 7,
+        "titulo": "Capítulo 7: Cibernética e Psicopatologia",
+        "secoes": [
+          "7.1 - Distúrbios de processamento e sobrecarga de informação no cérebro",
+          "7.2 - Analogia entre falhas em computadores e perturbações mentais",
+          "7.3 - Circuitos de memória reverberantes e psiquiatria cibernética"
+        ]
+      },
+      {
+        "id": "cib-cap-08",
+        "numero": 8,
+        "titulo": "Capítulo 8: Informação, Linguagem e Sociedade",
+        "secoes": [
+          "8.1 - A sociedade como um sistema complexo de comunicação",
+          "8.2 - Homeostase social e o papel do livre fluxo de informação",
+          "8.3 - O perigo do controlo centralizado e monopolização dos meios de comunicação"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "a-teoria-matematica-da-comunicacao",
+    "titulo": "A Teoria Matemática da Comunicação",
+    "subtitulo": "Contribuições para a Teoria da Informação e Sistemas de Comunicação",
+    "autor": "Claude E. Shannon e Warren Weaver",
+    "ano": 1949,
+    "tipo": "Artigo / Ensaio",
+    "categorias": [
+      "Teoria da Informação",
+      "Ciência da Computação",
+      "Telecomunicações"
+    ],
+    "descricao": "Obra clássica que estabeleceu o modelo conceitual de comunicação e a formulação matemática da entropia de informação.",
+    "capitulos": [
+      {
+        "id": "tmc-parte-01",
+        "numero": 1,
+        "titulo": "Parte 1: Ensaio Introdutório e Teoria Geral da Comunicação (Warren Weaver)",
+        "secoes": [
+          "1.1 - Três Níveis de Problemas na Comunicação: Técnico, Semântico e Eficácia",
+          "1.2 - O Esquema Geral de um Sistema de Comunicação (Fonte, Transmissor, Canal, Ruído, Receptor e Destino)",
+          "1.3 - Conceito de Informação como Medida da Liberdade de Escolha",
+          "1.4 - Capacidade do Canal, Largura de Banda e Velocidade de Transmissão",
+          "1.5 - A Entropia na Teoria da Informação e Redundância da Linguagem"
+        ]
+      },
+      {
+        "id": "tmc-parte-02",
+        "numero": 2,
+        "titulo": "Parte 2: A Teoria Matemática da Comunicação (Claude E. Shannon)",
+        "secoes": [
+          "2.1 - Definição e Estrutura de uma Fonte de Informação Discreta",
+          "2.2 - Processos Estocásticos e Cadeias de Markov na Linguagem Natural",
+          "2.3 - Aproximações Estocásticas da Língua Inglesa",
+          "2.4 - Definição Matemática da Entropia H e Teorema para Canais Sem Ruído",
+          "2.5 - Representação de Canais Discretos Sujeitos a Ruído, Equívoco e Transinformação",
+          "2.6 - Teorema Fundamental do Canal com Ruído (Capacidade C)",
+          "2.7 - Entropia Diferencial para Distribuições Contínuas e Ruído Branco Gaussiano",
+          "2.8 - Transmissão Contínua de Sinais e Teorema de Shannon-Hartley"
+        ]
+      }
+    ]
+  }
+]
