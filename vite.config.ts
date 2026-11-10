@@ -28,6 +28,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         navigateFallback: '/index.html',
+        // Rotas da API e os livros não podem cair no index.html
+        navigateFallbackDenylist: [/^\/api\//, /^\/livros\//],
         cleanupOutdatedCaches: true,
       },
     }),

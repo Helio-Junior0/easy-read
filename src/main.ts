@@ -2,16 +2,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import router from './router'
-import { popularBancoSeVazio } from './services/seedService'
 
-async function iniciarApp() {
-  try {
-    await popularBancoSeVazio()
-  } catch (erro) {
-    console.error('Erro ao popular o banco de dados:', erro)
-  }
-
-  createApp(App).use(router).mount('#app')
-}
-
-iniciarApp()
+// Os livros não vêm mais prontos no banco: cada pessoa baixa pelo botão
+// "Baixar livro" (ver src/services/livroService.ts).
+createApp(App).use(router).mount('#app')
