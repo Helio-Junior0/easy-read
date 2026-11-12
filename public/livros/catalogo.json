@@ -1,0 +1,13 @@
+{
+  "livros": [
+    {
+      "slug": "exemplo-git",
+      "titulo": "Git na Prática (livro de exemplo)",
+      "autor": "Equipe Easy Read",
+      "descricao": "Livro curto de exemplo para testar a leitura por páginas, o resumo e o quiz. Substituir pelos livros reais.",
+      "categoria": "Ferramentas",
+      "licenca": "Texto original da equipe, livre para uso no projeto",
+      "arquivo": "livros/exemplo-git.md"
+    }
+  ]
+}

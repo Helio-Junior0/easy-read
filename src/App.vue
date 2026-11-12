@@ -1,34 +1,68 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { popularBancoSeVazio } from './services/seedService';
-import { buscarTodosLivros } from './services/dbService';
-import type { Livro } from './types/index';
-
-const status = ref('Verificando banco de dados...');
-const livros = ref<Livro[]>([]);
-
-onMounted(async () => {
-  try {
-    const populou = await popularBancoSeVazio();
-    status.value = populou ? 'Banco populado com dados de exemplo!' : 'Banco de dados já continha informações.';
-    livros.value = await buscarTodosLivros();
-  } catch (erro) {
-    console.error(erro);
-    status.value = 'Erro ao inicializar o banco de dados.';
-  }
-});
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <main style="padding: 2rem; font-family: sans-serif;">
-    <h2>EasyRead</h2>
-    <p><strong>Status:</strong> {{ status }}</p>
+  <header class="barra-app">
+    <RouterLink to="/" class="barra-app__titulo">Easy Read</RouterLink>
+  </header>
 
-    <h3>Livros no Banco:</h3>
-    <ul>
-      <li v-for="livro in livros" :key="livro.id">
-        <strong>{{ livro.titulo }}</strong> — {{ livro.autor }}
-      </li>
-    </ul>
+  <main class="conteudo">
+    <RouterView />
   </main>
 </template>
+
+<style scoped>
+.barra-app {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 110px;
+  padding: 1.75rem 3rem;
+  background: var(--cor-primaria);
+  border-bottom: 7px solid var(--cor-destaque);
+}
+
+.barra-app__titulo {
+  color: var(--cor-texto-claro);
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: 0;
+  outline: none;
+}
+
+.barra-app__titulo:hover {
+  color: var(--cor-destaque);
+}
+
+.barra-app__titulo:focus-visible {
+  outline: 2px solid var(--cor-destaque);
+  outline-offset: 4px;
+}
+
+/* Sem limite de largura: a Home ocupa a tela inteira */
+.conteudo {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 600px) {
+  .barra-app {
+    min-height: 83px;
+    padding: 1.1rem 1.25rem;
+  }
+
+  .barra-app__titulo {
+    font-size: 2.05rem;
+  }
+}
+</style>

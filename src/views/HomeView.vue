@@ -1,45 +1,51 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-import { buscarTodosLivros } from '../services/dbService'
-import type { Livro as LivroDB } from '../types'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { baixarLivro, listarBiblioteca, type ItemBiblioteca } from '../services/livroService'
 
-const categorias = [
-  'Romance',
-  'Clássicos',
-  'Realismo',
-  'Suspense',
-  'Aventura',
-  'Infantil',
-] as const
+const router = useRouter()
 
-type Categoria = (typeof categorias)[number]
-
-type Livro = LivroDB & {
-  descricao?: string
-  categoria?: Categoria
-  capaUrl?: string
-  capa?: string
-}
-
-// Substituída a lista fixa por buscarTodosLivros() do IndexedDB
-const livros = ref<Livro[]>([])
+// Livros do catálogo (public/livros/catalogo.json) + quais já estão baixados no aparelho
+const livros = ref<ItemBiblioteca[]>([])
 const carregando = ref(true)
+const erro = ref('')
+const baixando = ref<string | null>(null) // slug do livro sendo baixado
 
-onMounted(async () => {
+async function carregar() {
+  carregando.value = true
+  erro.value = ''
   try {
-    livros.value = await buscarTodosLivros()
-  } catch (error) {
-    console.error('Erro ao buscar livros do banco:', error)
+    livros.value = await listarBiblioteca()
+  } catch (e) {
+    console.error('Erro ao carregar a biblioteca:', e)
+    erro.value = 'Não foi possível carregar os livros.'
   } finally {
     carregando.value = false
   }
+}
+
+onMounted(carregar)
+
+async function baixar(item: ItemBiblioteca) {
+  baixando.value = item.slug
+  erro.value = ''
+  try {
+    const livro = await baixarLivro(item)
+    await router.push(`/livro/${livro.id}`)
+  } catch (e) {
+    erro.value = (e as Error).message
+  } finally {
+    baixando.value = null
+  }
+}
+
+// Filtros montados a partir das categorias que existem no catálogo
+const filtros = computed(() => {
+  const categorias = new Set(livros.value.map((l) => l.categoria).filter((c): c is string => !!c))
+  return ['Todos', ...[...categorias].sort()]
 })
 
-const filtros = ['Todos', ...categorias] as const
-type Filtro = (typeof filtros)[number]
-
-const filtroAtivo = ref<Filtro>('Todos')
+const filtroAtivo = ref('Todos')
 const busca = ref('')
 
 function normalizar(texto: string) {
@@ -67,7 +73,7 @@ const livrosFiltrados = computed(() => {
 
 const contagem = computed(() => {
   const n = livrosFiltrados.value.length
-  return `${n} ${n === 1 ? 'livro registrado' : 'livros registrados'}`
+  return `${n} ${n === 1 ? 'livro disponível' : 'livros disponíveis'}`
 })
 </script>
 
@@ -86,7 +92,7 @@ const contagem = computed(() => {
     <header class="topo">
       <div class="topo__texto">
         <h1 class="titulo">Seus livros</h1>
-        <p class="subtitulo">Escolha um livro para ler resumos e testar o que aprendeu.</p>
+        <p class="subtitulo">Baixe um livro, leia no seu ritmo e revise o que leu com resumo e quiz.</p>
       </div>
       <span class="contagem">{{ contagem }}</span>
     </header>
@@ -105,28 +111,19 @@ const contagem = computed(() => {
       </button>
     </nav>
 
-    <p v-if="carregando" class="vazio">
-      Carregando livros...
-    </p>
+    <p v-if="erro" class="erro" role="alert">{{ erro }}</p>
+
+    <p v-if="carregando" class="vazio">Carregando livros...</p>
 
     <p v-else-if="livrosFiltrados.length === 0" class="vazio">
       Nenhum livro encontrado com esses filtros.
     </p>
 
     <ul v-else class="lista-cards">
-      <li v-for="livro in livrosFiltrados" :key="livro.id">
-        <RouterLink :to="`/livro/${livro.id}`" class="card">
-          <!-- Imagem se existir capaUrl ou capa -->
-          <img 
-            v-if="livro.capaUrl || livro.capa" 
-            class="card__capa" 
-            :src="livro.capaUrl || livro.capa" 
-            :alt="`Capa de ${livro.titulo}`" 
-            loading="lazy" 
-          />
-
-          <!-- Fallback de capa desenhada em CSS caso não haja imagem -->
-          <div v-else class="card__capa card__capa--css">
+      <li v-for="livro in livrosFiltrados" :key="livro.slug">
+        <article class="card">
+          <!-- Capa desenhada em CSS (os livros não têm imagem de capa) -->
+          <div class="card__capa card__capa--css" aria-hidden="true">
             <span class="card__capa-titulo">{{ livro.titulo }}</span>
             <span class="card__capa-autor">{{ livro.autor }}</span>
           </div>
@@ -134,10 +131,23 @@ const contagem = computed(() => {
           <div class="card__info">
             <span class="card__titulo">{{ livro.titulo }}</span>
             <span class="card__autor">{{ livro.autor }}</span>
-            <span class="card__descricao">{{ livro.descricao }}</span>
-            <span class="card__botao">Ler resumo →</span>
+            <span v-if="livro.descricao" class="card__descricao">{{ livro.descricao }}</span>
+            <span v-if="livro.baixado" class="card__selo">Disponível offline · {{ livro.totalPaginas }} páginas</span>
+
+            <RouterLink v-if="livro.baixado" :to="`/livro/${livro.livroId}`" class="card__botao">
+              Abrir livro →
+            </RouterLink>
+            <button
+              v-else
+              type="button"
+              class="card__botao"
+              :disabled="baixando !== null"
+              @click="baixar(livro)"
+            >
+              {{ baixando === livro.slug ? 'Baixando…' : 'Baixar livro' }}
+            </button>
           </div>
-        </RouterLink>
+        </article>
       </li>
     </ul>
   </section>
@@ -145,6 +155,7 @@ const contagem = computed(() => {
 
 <style scoped>
 .home {
+  
   width: 100vw;
   max-width: 100vw;
   margin-left: calc(50% - 50vw);
@@ -153,6 +164,7 @@ const contagem = computed(() => {
   text-align: left;
   overflow-x: hidden;
 }
+
 
 .busca {
   margin-bottom: 2rem;
@@ -278,31 +290,6 @@ const contagem = computed(() => {
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* Fallback de capa em CSS utilizando a cor primária */
-.card__capa--css {
-  background: var(--cor-primaria);
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0.75rem;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.card__capa-titulo {
-  font-weight: 700;
-  font-size: 0.95rem;
-  line-height: 1.2;
-}
-
-.card__capa-autor {
-  font-size: 0.8rem;
-  opacity: 0.85;
-  margin-top: 0.4rem;
-}
-
 .card__info {
   display: flex;
   flex-direction: column;
@@ -380,5 +367,62 @@ const contagem = computed(() => {
   .card__descricao {
     font-size: 0.95rem;
   }
+}
+
+.erro {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  color: var(--cor-erro, var(--cor-primaria));
+  font-weight: 600;
+}
+
+/* Capa em CSS (contribuição do Helio Matheus) */
+.card__capa--css {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  text-align: center;
+  background: var(--cor-primaria);
+  color: var(--cor-texto-claro, #fff);
+  border-bottom: 6px solid var(--cor-destaque);
+}
+
+.card__capa-titulo {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.card__capa-autor {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.card__selo {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-acerto);
+}
+
+button.card__botao {
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.card__botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.card__botao {
+  text-decoration: none;
 }
 </style>
