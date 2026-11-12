@@ -33,7 +33,7 @@ public/livros/x.md  →  "Baixar livro"  →  IndexedDB (páginas)  →  leitor 
 }
 ```
 
-O `slug` não pode se repetir. O `livros/exemplo-git.md` é só um livro de teste e pode sair do catálogo quando os reais entrarem.
+O `slug` não pode se repetir. Os dados e o sumário dos livros escolhidos pelo grupo (título, autor, categorias e seções de cada capítulo) estão em `docs/livros-planejados.json`; use o sumário para montar os títulos `#` e `##` do `.md`. O `livros/exemplo-git.md` é só um livro de teste e pode sair do catálogo quando os reais entrarem.
 
 ## Funções para as telas
 
