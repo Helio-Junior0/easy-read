@@ -45,6 +45,13 @@ describe('paginar', () => {
     expect(paginas[1].startsWith('## Capítulo 2')).toBe(true)
   })
 
+  it('capítulo (#) sempre começa página nova', () => {
+    const md = palavras(20) + '.\n\n# Capítulo 2\n\n' + palavras(50) + '.'
+    const paginas = paginar(md)
+    expect(paginas).toHaveLength(2)
+    expect(paginas[1].startsWith('# Capítulo 2')).toBe(true)
+  })
+
   it('divide parágrafo gigante entre frases', () => {
     const md = Array.from({ length: 100 }, () => palavras(9) + '.').join(' ')
     const paginas = paginar(md)

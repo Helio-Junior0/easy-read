@@ -10,6 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
     "@netlify/blobs": "^11.1.9",
     "dexie": "^4.4.6",
     "dompurify": "^3.4.17",

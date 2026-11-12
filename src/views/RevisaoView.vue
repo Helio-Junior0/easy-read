@@ -202,7 +202,7 @@ function novoIntervalo() {
       <!-- 3. Resumo -->
       <div v-else-if="etapa === 'resumo' && revisao" class="bloco">
         <h1>Resumo das páginas {{ revisao.inicio }} a {{ revisao.fim }}</h1>
-        <ConteudoMarkdown :md="revisao.resumo" />
+        <ConteudoMarkdown :md="revisao.resumo" simples />
 
         <div class="acoes">
           <button type="button" class="botao-principal" @click="comecarQuiz">
@@ -270,12 +270,18 @@ function novoIntervalo() {
   padding: 1.5rem 1rem 3rem;
 }
 
+.rotulo {
+  display: block;
+  margin: 0.25rem 0 0.75rem;
+}
+
 .bloco {
   display: grid;
   gap: 1rem;
   padding: 1.5rem;
   background: var(--cor-superficie);
-  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  border-radius: 22px;
 }
 
 .bloco h1 {
@@ -361,8 +367,8 @@ function novoIntervalo() {
   color: var(--cor-primaria);
   text-decoration: none;
   background: transparent;
-  border: 2px solid var(--cor-primaria);
-  border-radius: var(--raio);
+  border: 1px solid var(--cor-primaria);
+  border-radius: 999px;
   cursor: pointer;
 }
 

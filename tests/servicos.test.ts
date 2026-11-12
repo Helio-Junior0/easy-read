@@ -111,6 +111,25 @@ describe('fluxo completo', () => {
       .toBe('antes [figura] depois ![fig](http://x/y.png)')
   })
 
+  it('grava o capítulo de cada página e sabe onde continuar', async () => {
+    const { buscarCapituloDaPagina, buscarOndeContinuar } = await import('../src/services/leituraService')
+    const { ultimoTituloDeCapitulo } = await import('../src/services/dbService')
+    expect(ultimoTituloDeCapitulo('# Um\n\n```\n# comentário\n```\n\n# **Dois** #')).toBe('Dois')
+
+    const livro = await baixarLivro(item)
+    expect(await buscarCapituloDaPagina(livro.id!, 1)).toBe('Git na Prática')
+    expect(await buscarCapituloDaPagina(livro.id!, livro.totalPaginas)).toBe('Git na Prática')
+    // livro baixado antes de o capítulo ser gravado: calcula na hora
+    await db.paginas.toCollection().modify((p) => { delete p.capitulo })
+    expect(await buscarCapituloDaPagina(livro.id!, 3)).toBe('Git na Prática')
+
+    expect(await buscarOndeContinuar()).toBeNull()
+    await registrarLeitura(livro.id!, 2)
+    expect(await buscarOndeContinuar()).toEqual({ livroId: livro.id, pagina: 3 })
+    await registrarLeitura(livro.id!, livro.totalPaginas)
+    expect(await buscarOndeContinuar()).toEqual({ livroId: livro.id, pagina: livro.totalPaginas })
+  })
+
   it('recusa intervalo inválido', async () => {
     const livro = await baixarLivro(item)
     await expect(obterRevisao(livro.id!, 0, 2)).rejects.toBeInstanceOf(ErroRevisao)

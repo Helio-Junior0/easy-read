@@ -301,7 +301,7 @@ async function remover() {
 
 .progresso__preenchimento {
   height: 100%;
-  background: var(--cor-destaque);
+  background: var(--cor-primaria);
   border-radius: 999px;
   transition: width 0.6s ease-out;
 }
@@ -350,7 +350,7 @@ async function remover() {
   padding: 1rem 1.1rem;
   background: var(--cor-superficie);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-top: 4px solid var(--cor-destaque);
+  border-top: 4px solid var(--cor-secundaria);
   border-radius: var(--raio);
   color: inherit;
   text-decoration: none;
@@ -433,8 +433,8 @@ async function remover() {
   font-weight: 700;
   color: var(--cor-primaria);
   text-decoration: none;
-  border: 2px solid var(--cor-primaria);
-  border-radius: var(--raio);
+  border: 1px solid var(--cor-primaria);
+  border-radius: 999px;
 }
 
 .botao-secundario:hover {

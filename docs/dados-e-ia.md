@@ -162,7 +162,7 @@ As tabelas antigas (capítulos, resumos e quizzes fixos) são apagadas automatic
 
 ## Paginação
 
-`src/services/paginacao.ts` divide o Markdown em páginas de cerca de 300 palavras, cortando só entre blocos, sem quebrar código, sem deixar título sozinho no fim e começando página nova nos títulos `#` e `##`. **Não altere `PALAVRAS_POR_PAGINA`** depois que o app estiver em uso: as páginas de quem já baixou deixariam de bater com as de quem baixar depois.
+`src/services/paginacao.ts` divide o Markdown em páginas de cerca de 300 palavras, cortando só entre blocos, sem quebrar código e sem deixar título sozinho no fim. Título de capítulo (`#`) sempre começa página nova; título de seção (`##`) começa página nova quando a anterior já tem conteúdo. **Não altere `PALAVRAS_POR_PAGINA`** depois que o app estiver em uso: as páginas de quem já baixou deixariam de bater com as de quem baixar depois.
 
 ## Testes
 
