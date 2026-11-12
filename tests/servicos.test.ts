@@ -7,8 +7,9 @@ import { buscarProgresso, registrarLeitura, sugerirIntervalo } from '../src/serv
 import { ErroRevisao, obterRevisao, registrarResultado, buscarTentativasPorRevisao } from '../src/services/revisaoService'
 import { paginar } from '../src/services/paginacao'
 
-const catalogo = JSON.parse(readFileSync('public/livros/catalogo.json', 'utf8'))
-const md = readFileSync('public/livros/exemplo-git.md', 'utf8')
+const catalogo = { livros: [{ slug: 'exemplo-git', titulo: 'Git na Prática', autor: 'Equipe', categoria: 'Ferramentas', arquivo: 'livros/exemplo-git.md' }] }
+const catalogoAdmin = { livros: [{ slug: 'livro-do-admin', titulo: 'Livro do Admin', autor: 'Admin', arquivo: 'api/livros/livro-do-admin' }] }
+const md = readFileSync('tests/fixtures/exemplo-git.md', 'utf8')
 const item = catalogo.livros[0]
 
 function respostaIA(inicio: number) {
@@ -30,6 +31,8 @@ beforeEach(async () => {
   vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
     if (url.endsWith('livros/catalogo.json')) return new Response(JSON.stringify(catalogo))
     if (url.endsWith('livros/exemplo-git.md')) return new Response(md)
+    if (url === '/api/livros') return new Response(JSON.stringify(catalogoAdmin))
+    if (url.endsWith('api/livros/livro-do-admin')) return new Response('# Livro do Admin\n\nTexto do livro.')
     if (url === '/api/gerar-revisao') {
       const pedido = JSON.parse(String(init?.body))
       chamadasIA.push(pedido)
@@ -47,7 +50,12 @@ describe('fluxo completo', () => {
     expect(livro.totalPaginas).toBe(paginar(md).length)
     expect(await db.paginas.where('livroId').equals(livro.id!).count()).toBe(livro.totalPaginas)
     const bib = await listarBiblioteca()
-    expect(bib[0]).toMatchObject({ slug: 'exemplo-git', baixado: true, livroId: livro.id })
+    expect(bib[0]).toMatchObject({ slug: 'exemplo-git', baixado: true, livroId: livro.id, origem: 'fixo' })
+    // livro adicionado pelo painel aparece junto e pode ser baixado
+    expect(bib[1]).toMatchObject({ slug: 'livro-do-admin', baixado: false, origem: 'admin' })
+    const doAdmin = await baixarLivro(bib[1])
+    expect(doAdmin.totalPaginas).toBe(1)
+    await db.livros.delete(doAdmin.id!)
     // baixar de novo não duplica
     await baixarLivro(item)
     expect(await db.livros.count()).toBe(1)
@@ -84,6 +92,23 @@ describe('fluxo completo', () => {
     await registrarResultado(revisao.id!, 1)
     const tentativas = await buscarTentativasPorRevisao(revisao.id!)
     expect(tentativas[0]).toMatchObject({ acertos: 1, total: 1, livroId: id })
+  })
+
+  it('catálogo: usa o que estiver disponível e só falha se nada responder', async () => {
+    const original = globalThis.fetch as any
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) =>
+      url === '/api/livros' ? new Response('<html>', { status: 200 }) : original(url, init)))
+    expect((await listarBiblioteca()).map((l) => l.slug)).toEqual(['exemplo-git'])
+
+    const livro = await baixarLivro(item)
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline') }))
+    expect(await listarBiblioteca()).toMatchObject([{ slug: 'exemplo-git', baixado: true, livroId: livro.id }])
+  })
+
+  it('não manda imagens embutidas para a IA', async () => {
+    const { semImagensEmbutidas } = await import('../src/services/revisaoService')
+    expect(semImagensEmbutidas('antes ![](data:image/png;base64,AAAA) depois ![fig](http://x/y.png)'))
+      .toBe('antes [figura] depois ![fig](http://x/y.png)')
   })
 
   it('recusa intervalo inválido', async () => {

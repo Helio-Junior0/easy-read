@@ -10,11 +10,15 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.9",
     "dexie": "^4.4.6",
+    "dompurify": "^3.4.17",
+    "marked": "^18.2.0",
     "vue": "^3.5.42",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
+    "@netlify/functions": "^6.1.1",
     "@types/node": "^24.13.3",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vue/tsconfig": "^0.9.1",
