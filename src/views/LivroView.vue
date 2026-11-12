@@ -1,43 +1,60 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import BotaoVoltar from '../components/BotaoVoltar.vue'
-
-type Status = 'concluido' | 'pendente'
+import type { Livro, Revisao, Tentativa } from '../types'
+import { buscarLivroPorId, buscarTentativasPorLivro } from '../services/dbService'
+import { buscarProgresso, sugerirIntervalo, type Progresso } from '../services/leituraService'
+import { excluirLivroBaixado } from '../services/livroService'
+import { buscarRevisoesPorLivro } from '../services/revisaoService'
 
 const props = defineProps<{ id: string }>()
+const router = useRouter()
 
-// Dados de exemplo, até o progresso ser salvo de verdade
-const concluidos = ref<number[]>([1])
+const livroId = computed(() => Number(props.id))
 
-const capitulos = computed(() => {
-  const base = (Number(props.id) - 1) * 3
-  return [1, 2, 3].map((numero) => {
-    const idGlobal = base + numero
-    const status: Status = concluidos.value.includes(idGlobal)
-      ? 'concluido'
-      : 'pendente'
-    return {
-      id: idGlobal,
-      numero,
-      titulo: `Capítulo de exemplo ${numero}`,
-      paginas: 12 + numero * 4,
-      status,
-    }
-  })
-})
+const carregando = ref(true)
+const livro = ref<Livro>()
+const progresso = ref<Progresso>()
+const revisoes = ref<Revisao[]>([])
+const tentativas = ref<Tentativa[]>([])
+const temPaginasParaRevisar = ref(false)
+const confirmandoRemocao = ref(false)
 
-const totalConcluidos = computed(
-  () => capitulos.value.filter((c) => c.status === 'concluido').length,
+async function carregar() {
+  carregando.value = true
+  livro.value = Number.isInteger(livroId.value) ? await buscarLivroPorId(livroId.value) : undefined
+  if (livro.value) {
+    progresso.value = await buscarProgresso(livroId.value)
+    revisoes.value = await buscarRevisoesPorLivro(livroId.value)
+    tentativas.value = await buscarTentativasPorLivro(livroId.value)
+    temPaginasParaRevisar.value = (await sugerirIntervalo(livroId.value)) !== null
+  }
+  carregando.value = false
+}
+
+onMounted(carregar)
+watch(livroId, carregar)
+
+const comecou = computed(() => (progresso.value?.ultimaPaginaLida ?? 0) > 0)
+const terminou = computed(
+  () => !!progresso.value && progresso.value.ultimaPaginaLida >= progresso.value.totalPaginas,
 )
 
-const progresso = computed(() =>
-  Math.round((totalConcluidos.value / capitulos.value.length) * 100),
-)
+// Última nota de cada revisão
+function ultimaNota(revisaoId?: number): string {
+  const doQuiz = tentativas.value.filter((t) => t.revisaoId === revisaoId)
+  const ultima = doQuiz[doQuiz.length - 1]
+  return ultima ? `${ultima.acertos}/${ultima.total} acertos` : 'Quiz ainda não feito'
+}
 
-const rotuloStatus: Record<Status, string> = {
-  concluido: 'Concluído',
-  pendente: 'Pendente',
+function dataCurta(data: Date): string {
+  return new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
+async function remover() {
+  await excluirLivroBaixado(livroId.value)
+  router.push('/')
 }
 </script>
 
@@ -45,80 +62,117 @@ const rotuloStatus: Record<Status, string> = {
   <section class="livro">
     <BotaoVoltar fallback="/" />
 
-    <div class="capa-bloco">
-      <div class="capa" aria-hidden="true">
-        <span class="capa__numero">{{ id }}</span>
-        <span class="capa__texto">Livro</span>
-      </div>
+    <p v-if="carregando">Carregando livro…</p>
 
-      <div class="info">
-        <p class="rotulo">Livro #{{ id }}</p>
-        <h1 class="titulo">Título do livro</h1>
-        <p class="autor">Autor do livro</p>
-
-        <div class="stats">
-          <div class="stat">
-            <span class="stat__valor">{{ capitulos.length }}</span>
-            <span class="stat__rotulo">capítulos</span>
-          </div>
-          <div class="stat">
-            <span class="stat__valor">{{ capitulos.length }}</span>
-            <span class="stat__rotulo">quizzes</span>
-          </div>
-          <div class="stat">
-            <span class="stat__valor">{{ totalConcluidos }}</span>
-            <span class="stat__rotulo">concluídos</span>
-          </div>
-        </div>
-
-        <div class="progresso">
-          <div class="progresso__info">
-            <span>Progresso</span>
-            <span>{{ progresso }}%</span>
-          </div>
-          <div class="progresso__barra" role="progressbar" :aria-valuenow="progresso" aria-valuemin="0" aria-valuemax="100">
-            <div class="progresso__preenchimento" :style="{ width: progresso + '%' }" />
-          </div>
-        </div>
-      </div>
+    <div v-else-if="!livro" class="aviso">
+      <h1 class="titulo">Livro não encontrado</h1>
+      <p>Este livro não está baixado neste aparelho.</p>
+      <RouterLink to="/" class="botao-principal">Ver a biblioteca</RouterLink>
     </div>
 
-    <div class="secao-cabecalho">
-      <h2 class="secao-titulo">Capítulos</h2>
-      <span class="secao-contagem">{{ totalConcluidos }}/{{ capitulos.length }} concluídos</span>
-    </div>
+    <template v-else-if="progresso">
+      <div class="capa-bloco">
+        <div class="capa" aria-hidden="true">
+          <span class="capa__titulo">{{ livro.titulo }}</span>
+          <span class="capa__texto">{{ livro.autor }}</span>
+        </div>
 
-    <ul class="grade">
-      <li v-for="capitulo in capitulos" :key="capitulo.id">
-        <RouterLink
-          :to="`/capitulo/${capitulo.id}`"
-          class="card"
-          :class="{ 'card--concluido': capitulo.status === 'concluido' }"
-        >
-          <div class="card__topo">
-            <span class="card__numero">Capítulo {{ capitulo.numero }}</span>
-            <span class="selo" :class="`selo--${capitulo.status}`">
-              {{ rotuloStatus[capitulo.status] }}
-            </span>
+        <div class="info">
+          <p v-if="livro.categoria" class="rotulo">{{ livro.categoria }}</p>
+          <h1 class="titulo">{{ livro.titulo }}</h1>
+          <p class="autor">{{ livro.autor }}</p>
+          <p v-if="livro.descricao" class="descricao">{{ livro.descricao }}</p>
+
+          <div class="stats">
+            <div class="stat">
+              <span class="stat__valor">{{ progresso.totalPaginas }}</span>
+              <span class="stat__rotulo">páginas</span>
+            </div>
+            <div class="stat">
+              <span class="stat__valor">{{ progresso.paginasLidas }}</span>
+              <span class="stat__rotulo">lidas</span>
+            </div>
+            <div class="stat">
+              <span class="stat__valor">{{ revisoes.length }}</span>
+              <span class="stat__rotulo">revisões</span>
+            </div>
           </div>
 
-          <h3 class="card__titulo">{{ capitulo.titulo }}</h3>
-
-          <div class="card__meta">
-            <span>{{ capitulo.paginas }} páginas</span>
-            <span>·</span>
-            <span>Quiz de 4 perguntas</span>
+          <div class="progresso">
+            <div class="progresso__info">
+              <span>Progresso</span>
+              <span>{{ progresso.percentual }}%</span>
+            </div>
+            <div
+              class="progresso__barra"
+              role="progressbar"
+              :aria-valuenow="progresso.percentual"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <div class="progresso__preenchimento" :style="{ width: progresso.percentual + '%' }" />
+            </div>
           </div>
 
-          <div class="card__rodape">
-            <span class="card__acao">
-              {{ capitulo.status === 'concluido' ? 'Revisar capítulo' : 'Começar capítulo' }}
-            </span>
-            <span class="card__seta" aria-hidden="true">→</span>
+          <div class="acoes">
+            <RouterLink
+              :to="`/livro/${livro.id}/pagina/${terminou ? 1 : progresso.paginaParaContinuar}`"
+              class="botao-principal"
+            >
+              {{ terminou ? 'Ler de novo' : comecou ? `Continuar na página ${progresso.paginaParaContinuar}` : 'Começar a ler' }}
+            </RouterLink>
+            <RouterLink
+              v-if="comecou"
+              :to="`/livro/${livro.id}/revisao`"
+              class="botao-secundario"
+            >
+              {{ temPaginasParaRevisar ? 'Revisar o que li' : 'Nova revisão' }}
+            </RouterLink>
           </div>
-        </RouterLink>
-      </li>
-    </ul>
+        </div>
+      </div>
+
+      <div class="secao-cabecalho">
+        <h2 class="secao-titulo">Revisões</h2>
+        <span class="secao-contagem">{{ revisoes.length }} {{ revisoes.length === 1 ? 'feita' : 'feitas' }}</span>
+      </div>
+
+      <p v-if="revisoes.length === 0" class="vazio">
+        Depois de ler algumas páginas, toque em "Revisar o que li" para receber um resumo e um quiz desse trecho.
+      </p>
+
+      <ul v-else class="grade">
+        <li v-for="revisao in revisoes" :key="revisao.id">
+          <RouterLink
+            :to="{ path: `/livro/${livro.id}/revisao`, query: { de: revisao.inicio, ate: revisao.fim } }"
+            class="card"
+          >
+            <div class="card__topo">
+              <span class="card__numero">Páginas {{ revisao.inicio }} a {{ revisao.fim }}</span>
+              <span class="selo">{{ dataCurta(revisao.criadaEm) }}</span>
+            </div>
+            <p class="card__meta">{{ revisao.perguntas.length }} perguntas · {{ ultimaNota(revisao.id) }}</p>
+            <div class="card__rodape">
+              <span class="card__acao">Abrir resumo e quiz</span>
+              <span class="card__seta" aria-hidden="true">→</span>
+            </div>
+          </RouterLink>
+        </li>
+      </ul>
+
+      <footer class="rodape">
+        <p v-if="livro.licenca" class="licenca">Licença: {{ livro.licenca }}</p>
+
+        <button v-if="!confirmandoRemocao" type="button" class="botao-texto" @click="confirmandoRemocao = true">
+          Remover do aparelho
+        </button>
+        <div v-else class="confirmacao" role="alert">
+          <span>Isso apaga o livro, as páginas lidas e as revisões deste aparelho.</span>
+          <button type="button" class="botao-texto botao-texto--perigo" @click="remover">Remover</button>
+          <button type="button" class="botao-texto" @click="confirmandoRemocao = false">Cancelar</button>
+        </div>
+      </footer>
+    </template>
   </section>
 </template>
 
@@ -273,10 +327,16 @@ const rotuloStatus: Record<Status, string> = {
   opacity: 0.7;
 }
 
-/* Grade de capítulos */
+/* Dentro do grid, o botão de voltar e o rótulo não devem esticar */
+.botao-voltar,
+.rotulo {
+  justify-self: start;
+}
+
+/* Revisões já feitas */
 .grade {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 1rem;
   margin: 0;
   padding: 0;
@@ -285,30 +345,19 @@ const rotuloStatus: Record<Status, string> = {
 
 .card {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.5rem;
   height: 100%;
-  padding: 1.1rem 1.2rem;
+  padding: 1rem 1.1rem;
   background: var(--cor-superficie);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-top: 4px solid var(--cor-secundaria);
+  border-top: 4px solid var(--cor-destaque);
   border-radius: var(--raio);
   color: inherit;
   text-decoration: none;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.card--concluido {
-  border-top-color: var(--cor-destaque);
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
-}
-
-.card:focus-visible {
-  outline: 2px solid var(--cor-primaria);
-  outline-offset: 3px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
 }
 
 .card__topo {
@@ -319,92 +368,149 @@ const rotuloStatus: Record<Status, string> = {
 }
 
 .card__numero {
-  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.65;
 }
 
 .selo {
-  padding: 0.2rem 0.6rem;
+  padding: 0.15rem 0.55rem;
   font-size: 0.75rem;
   font-weight: 700;
+  background: rgba(0, 0, 0, 0.07);
   border-radius: 999px;
 }
 
-.selo--pendente {
-  background: rgba(0, 0, 0, 0.07);
-}
-
-.selo--concluido {
-  background: var(--cor-destaque);
-  color: var(--cor-primaria);
-}
-
-.card__titulo {
-  margin: 0;
-  font-size: 1.1rem;
-  line-height: 1.3;
-}
-
 .card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  opacity: 0.7;
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.75;
 }
 
 .card__rodape {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 0.6rem;
+  padding-top: 0.5rem;
   border-top: 1px dashed rgba(0, 0, 0, 0.12);
 }
 
-.card__acao {
+.card__acao,
+.card__seta {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--cor-primaria);
 }
 
-.card__seta {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--cor-primaria);
-  transition: transform 0.15s;
+.capa__titulo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
 }
 
-.card:hover .card__seta {
-  transform: translateX(3px);
+.capa__texto {
+  text-align: center;
+}
+
+.descricao {
+  margin: 0.25rem 0 0;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.botao-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.25rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+  text-decoration: none;
+  border: 2px solid var(--cor-primaria);
+  border-radius: var(--raio);
+}
+
+.botao-secundario:hover {
+  background: var(--cor-fundo);
+}
+
+.vazio {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.aviso {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+}
+
+.rodape {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+}
+
+.licenca {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.botao-texto {
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--cor-primaria);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.botao-texto--perigo {
+  color: var(--cor-erro);
+}
+
+.confirmacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
 }
 
 @media (max-width: 700px) {
   .capa-bloco {
     grid-template-columns: 1fr;
+    padding: 1.1rem;
   }
 
   .capa {
-    min-height: 160px;
+    min-height: 140px;
   }
 
   .titulo {
     font-size: 1.5rem;
   }
+
+  .acoes > * {
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .card__seta,
   .progresso__preenchimento {
     transition: none;
-  }
-
-  .card:hover {
-    transform: none;
   }
 }
 </style>

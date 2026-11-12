@@ -6,12 +6,12 @@ const palavras = (n: number, p = 'palavra') => Array.from({ length: n }, () => p
 
 describe('paginar', () => {
   it('é determinística', () => {
-    const md = readFileSync('public/livros/exemplo-git.md', 'utf8')
+    const md = readFileSync('tests/fixtures/exemplo-git.md', 'utf8')
     expect(paginar(md)).toEqual(paginar(md))
   })
 
   it('não perde nem inventa texto', () => {
-    const md = readFileSync('public/livros/exemplo-git.md', 'utf8')
+    const md = readFileSync('tests/fixtures/exemplo-git.md', 'utf8')
     const total = contarPalavras(md)
     const somaPaginas = paginar(md).reduce((s, p) => s + contarPalavras(p), 0)
     expect(somaPaginas).toBe(total)

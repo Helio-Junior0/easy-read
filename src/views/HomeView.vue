@@ -155,10 +155,7 @@ const contagem = computed(() => {
 
 <style scoped>
 .home {
-  
-  width: 100vw;
-  max-width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100%;
   box-sizing: border-box;
   padding: 2rem 3rem 3rem;
   text-align: left;

@@ -1,13 +1,13 @@
 {
   "livros": [
     {
-      "slug": "exemplo-git",
-      "titulo": "Git na Prática (livro de exemplo)",
-      "autor": "Equipe Easy Read",
-      "descricao": "Livro curto de exemplo para testar a leitura por páginas, o resumo e o quiz. Substituir pelos livros reais.",
-      "categoria": "Ferramentas",
-      "licenca": "Texto original da equipe, livre para uso no projeto",
-      "arquivo": "livros/exemplo-git.md"
+      "slug": "pense-em-python",
+      "titulo": "Pense em Python",
+      "autor": "Allen B. Downey",
+      "descricao": "Uma introdução à programação e ao pensamento computacional usando Python 3, do primeiro programa até classes, herança e análise de algoritmos.",
+      "categoria": "Programação",
+      "licenca": "Obra original sob licença Creative Commons BY-NC 3.0",
+      "arquivo": "livros/pense-em-python.md"
     }
   ]
 }
