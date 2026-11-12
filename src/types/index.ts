@@ -23,6 +23,8 @@ export interface Pagina {
   livroId: number;
   numero: number; // começa em 1
   md: string;
+  // Título do capítulo (último "# Título") em que a página está
+  capitulo?: string;
 }
 
 // Registro de que a pessoa leu uma página

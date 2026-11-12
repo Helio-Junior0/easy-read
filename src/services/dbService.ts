@@ -18,6 +18,20 @@ export async function buscarLivroPorSlug(slug: string): Promise<Livro | undefine
   return await db.livros.where('slug').equals(slug).first();
 }
 
+// Último título de capítulo ("# Título") dentro de um trecho de Markdown, ignorando blocos de código
+export function ultimoTituloDeCapitulo(md: string): string | undefined {
+  let dentroDeCodigo = false;
+  let titulo: string | undefined;
+  for (const linha of md.split('\n')) {
+    if (/^\s*(```|~~~)/.test(linha)) dentroDeCodigo = !dentroDeCodigo;
+    else if (!dentroDeCodigo) {
+      const m = /^#\s+(.+?)\s*#*$/.exec(linha);
+      if (m) titulo = m[1].replace(/[*_`]/g, '').trim();
+    }
+  }
+  return titulo;
+}
+
 // Salva o livro e todas as páginas numa transação só (ou entra tudo, ou nada)
 export async function salvarLivroComPaginas(
   livro: Omit<Livro, 'id'>,
@@ -25,7 +39,11 @@ export async function salvarLivroComPaginas(
 ): Promise<number> {
   return await db.transaction('rw', [db.livros, db.paginas], async () => {
     const livroId = await db.livros.add(livro as Livro);
-    const paginas: Pagina[] = paginasMd.map((md, i) => ({ livroId, numero: i + 1, md }));
+    let capitulo: string | undefined;
+    const paginas: Pagina[] = paginasMd.map((md, i) => {
+      capitulo = ultimoTituloDeCapitulo(md) ?? capitulo;
+      return { livroId, numero: i + 1, md, capitulo };
+    });
     await db.paginas.bulkAdd(paginas);
     return livroId;
   });
@@ -56,6 +74,20 @@ export async function buscarPaginas(livroId: number, inicio: number, fim: number
     .toArray();
 }
 
+// Capítulo de uma página. Livros baixados antes de o capítulo ser gravado são calculados na hora.
+export async function buscarCapituloDaPagina(livroId: number, numero: number): Promise<string | undefined> {
+  const pagina = await buscarPagina(livroId, numero);
+  if (!pagina) return undefined;
+  if (pagina.capitulo !== undefined) return pagina.capitulo;
+
+  const anteriores = await buscarPaginas(livroId, 1, numero);
+  for (let i = anteriores.length - 1; i >= 0; i--) {
+    const titulo = ultimoTituloDeCapitulo(anteriores[i].md);
+    if (titulo) return titulo;
+  }
+  return undefined;
+}
+
 // ---------- Leituras (páginas lidas) ----------
 
 export async function marcarPaginaLida(livroId: number, pagina: number): Promise<void> {
@@ -65,6 +97,16 @@ export async function marcarPaginaLida(livroId: number, pagina: number): Promise
 export async function buscarPaginasLidas(livroId: number): Promise<number[]> {
   const leituras = await db.leituras.where('livroId').equals(livroId).toArray();
   return leituras.map((l) => l.pagina).sort((a, b) => a - b);
+}
+
+// Última página que a pessoa leu, em qualquer livro (para o botão "Continuar")
+export async function buscarUltimaLeitura(): Promise<{ livroId: number; pagina: number } | undefined> {
+  const leituras = await db.leituras.toArray();
+  let ultima: (typeof leituras)[number] | undefined;
+  for (const l of leituras) {
+    if (!ultima || l.lidaEm >= ultima.lidaEm) ultima = l;
+  }
+  return ultima ? { livroId: ultima.livroId, pagina: ultima.pagina } : undefined;
 }
 
 // Maior número de página já lida (0 se nenhuma)
