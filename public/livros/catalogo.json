@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 {
   "livros": [
     {
@@ -11,3 +12,28 @@
     }
   ]
 }
+=======
+[
+  {
+    "id": "a-teoria-matematica-da-comunicacao",
+    "titulo": "A Teoria Matemática da Comunicação",
+    "autor": "Claude Shannon e Warren Weaver",
+    "descricao": "Fundamentos clássicos da teoria da informação e comunicação.",
+    "arquivo": "/livros/a-teoria-matematica-da-comunicacao"
+  },
+  {
+    "id": "cibernetica",
+    "titulo": "Cibernética: Ou o Controle e a Comunicação no Animal e na Máquina",
+    "autor": "Norbert Wiener",
+    "descricao": "Estudo pioneiro sobre sistemas de controle, feedback e comunicação.",
+    "arquivo": "/livros/ciberne-tica-ou-o-controle-e-comunicac-a-o-no-animal-e-na-ma-quina"
+  },
+  {
+    "id": "pense-em-python",
+    "titulo": "Pense em Python",
+    "autor": "Allen B. Downey",
+    "descricao": "Introdução ao pensamento computacional e programação com Python.",
+    "arquivo": "/livros/Pense em Python"
+  }
+]
+>>>>>>> Stashed changes
