@@ -121,7 +121,8 @@ try {
 
 - Endereço: `POST /api/gerar-revisao`.
 - Precisa da variável `GEMINI_API_KEY` no Netlify (Site configuration › Environment variables). A chave é criada no Google AI Studio e **nunca** vai para o código.
-- `GEMINI_MODEL` é opcional (padrão `gemini-2.5-flash`). Se o Google trocar o nome do modelo, basta mudar a variável.
+- `GEMINI_MODEL` é opcional (padrão `gemini-3.5-flash-lite`, o mais rápido e com a cota grátis mais folgada). Se o modelo escolhido não estiver liberado para a chave, a função tenta `gemini-2.5-flash-lite` e `gemini-2.5-flash`.
+- Quando a IA falha, a mensagem na tela traz o motivo dado pelo Google (ex.: chave inválida, modelo não encontrado), para não precisar abrir os logs do Netlify.
 - A função confere a resposta da IA: descarta perguntas cuja resposta certa não está entre as opções e tenta de novo uma vez se vier algo inválido.
 
 ## Funções do servidor (Netlify Functions)
