@@ -98,7 +98,8 @@ Cada pergunta tem `{ pergunta, opcoes, respostaCorreta, pagina }`. O formato é 
 
 - `offline`: sem internet e sem revisão salva para esse intervalo;
 - `intervalo`: páginas inválidas ou mais de 50 de uma vez;
-- `servidor`: a IA falhou ou devolveu algo fora do formato.
+- `servidor`: a IA falhou ou devolveu algo fora do formato;
+- `limite`: acabou o limite de revisões novas do dia (do app, da pessoa ou da cota do Gemini).
 
 A `message` do erro já vem pronta para mostrar na tela.
 
@@ -132,7 +133,20 @@ try {
 | `POST /api/livros` | adicionar livro (admin) |
 | `DELETE /api/livros/:slug` | excluir livro (admin) |
 | `POST /api/admin/login` | login do admin |
-| `POST /api/gerar-revisao` | resumo + quiz pela IA |
+| `POST /api/gerar-revisao` | resumo + quiz pela IA (com cache e limite diário) |
+
+### Limite de uso da IA
+
+A cota grátis do Gemini é pequena, então a função `gerar-revisao` economiza assim:
+
+- **Cache compartilhado:** toda revisão gerada fica guardada no Netlify Blobs. Se outra pessoa pedir as mesmas páginas do mesmo livro, recebe a guardada, sem chamar a IA e sem contar no limite.
+- **Limite diário geral:** `LIMITE_DIARIO` (padrão 150) revisões novas por dia no app inteiro.
+- **Limite por pessoa:** `LIMITE_POR_PESSOA` (padrão 10) revisões novas por dia por endereço de internet. O endereço é guardado só como código (hash).
+- **Admin sem limite:** quem está logado como admin não entra na contagem.
+- **Uma tentativa só:** se a IA responder fora do formato, a função não tenta de novo (cada tentativa gasta cota).
+- **Mínimo de 3 páginas** por revisão (menos que isso só em livro com menos de 3 páginas).
+
+A contagem zera à meia-noite do horário do Pacífico (4h no horário de Cuiabá, ou 3h durante o horário de verão americano), junto com a cota do Google. Os limites mudam pelas variáveis no Netlify, sem mexer no código; depois de mudar, é preciso um novo deploy.
 
 ### Testar as funções no computador
 

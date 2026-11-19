@@ -81,6 +81,12 @@ export async function entrar(senha: string): Promise<void> {
   estado.logado = true;
 }
 
+// Cabeçalho de login do admin, se houver sessão (sem erro quando não há)
+export function cabecalhoAdminSeLogado(): Record<string, string> {
+  const sessao = lerSessao();
+  return sessao ? { Authorization: `Bearer ${sessao.token}` } : {};
+}
+
 function cabecalhoAdmin(): Record<string, string> {
   const sessao = lerSessao();
   if (!sessao) {

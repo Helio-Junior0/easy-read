@@ -4,6 +4,19 @@
 // Variáveis de ambiente (Netlify > Site configuration > Environment variables):
 //   GEMINI_API_KEY  -> obrigatória (Google AI Studio). Nunca colocar no código.
 //   GEMINI_MODEL    -> opcional, padrão "gemini-2.5-flash".
+//   LIMITE_DIARIO      -> opcional, revisões novas por dia no app inteiro (padrão 150).
+//   LIMITE_POR_PESSOA  -> opcional, revisões novas por dia por pessoa/internet (padrão 10).
+//
+// Para economizar a cota do Gemini:
+// - toda revisão gerada fica guardada no Netlify Blobs; se outra pessoa pedir as mesmas
+//   páginas do mesmo livro, recebe a guardada sem chamar a IA (não conta no limite);
+// - só pedidos que chamam a IA contam no limite diário geral e no limite por pessoa;
+// - o administrador logado não tem limite (para as demonstrações);
+// - a contagem zera à meia-noite do horário do Pacífico, junto com a cota do Google.
+import { createHash } from 'node:crypto';
+import { getStore } from '@netlify/blobs';
+import type { Context } from '@netlify/functions';
+import { requisicaoDeAdmin } from '../lib/auth';
 import {
   MAX_PAGINAS_POR_REVISAO,
   quantidadeDePerguntas,
@@ -13,8 +26,23 @@ import {
 } from '../../src/shared/revisaoFormato';
 
 const MODELO_PADRAO = 'gemini-2.5-flash';
+
+class LimiteDaIA extends Error {}
+class DemorouDemais extends Error {}
+
+// O Netlify (plano grátis) encerra a função em 10 segundos. Desistimos um pouco antes
+// para devolver uma mensagem clara em vez de um erro sem explicação.
+const TEMPO_MAXIMO_MS = 9_000;
+
+// O "raciocínio" do Gemini 2.5 Flash deixa a resposta lenta demais para os 10 segundos.
+// Para resumo e quiz de um trecho ele não é necessário, então fica desligado.
+function configuracaoDoModelo(modelo: string): Record<string, unknown> {
+  return /^gemini-2\.5-flash/.test(modelo) ? { thinkingConfig: { thinkingBudget: 0 } } : {};
+}
 const MAX_CARACTERES = 200_000;
-const TENTATIVAS = 2;
+const TENTATIVAS = 1; // cada tentativa gasta um pedido da cota
+const LIMITE_DIARIO_PADRAO = 150;
+const LIMITE_POR_PESSOA_PADRAO = 10;
 
 export const config = { path: '/api/gerar-revisao' };
 
@@ -44,6 +72,7 @@ function validarPedido(dados: unknown): PedidoRevisao {
   }
   const tamanho = p.paginas.reduce((soma, pg) => soma + (typeof pg.md === 'string' ? pg.md.length : 0), 0);
   if (tamanho > MAX_CARACTERES) throw new Error('Trecho grande demais para uma revisão.');
+  p.nova = p.nova === true;
   return p;
 }
 
@@ -95,19 +124,30 @@ const ESQUEMA_RESPOSTA = {
 
 async function chamarGemini(prompt: string, chave: string, modelo: string): Promise<unknown> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`;
-  const resposta = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.4,
-        responseMimeType: 'application/json',
-        responseSchema: ESQUEMA_RESPOSTA,
-      },
-    }),
-  });
+  let resposta: Response;
+  try {
+    resposta = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
+      signal: AbortSignal.timeout(TEMPO_MAXIMO_MS),
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 4096,
+          responseMimeType: 'application/json',
+          responseSchema: ESQUEMA_RESPOSTA,
+          ...configuracaoDoModelo(modelo),
+        },
+      }),
+    });
+  } catch (erro) {
+    const nome = (erro as Error)?.name;
+    if (nome === 'TimeoutError' || nome === 'AbortError') throw new DemorouDemais('Gemini demorou demais.');
+    throw erro;
+  }
 
+  if (resposta.status === 429) throw new LimiteDaIA('Cota do Gemini esgotada.');
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => '');
     throw new Error(`Gemini respondeu ${resposta.status}: ${detalhe.slice(0, 300)}`);
@@ -133,13 +173,78 @@ export async function gerarRevisao(
       const bruto = await chamarGemini(prompt, chave, modelo);
       return validarRevisaoGerada(bruto, pedido.inicio, pedido.fim);
     } catch (erro) {
+      if (erro instanceof LimiteDaIA || erro instanceof DemorouDemais) throw erro;
       ultimoErro = erro;
     }
   }
   throw ultimoErro;
 }
 
-export default async (req: Request): Promise<Response> => {
+// ---------- Cache compartilhado e limites (Netlify Blobs) ----------
+
+const loja = () => getStore({ name: 'revisoes', consistency: 'strong' });
+
+function sha256(texto: string): string {
+  return createHash('sha256').update(texto).digest('hex');
+}
+
+// A chave depende do texto das páginas: mesmo livro e mesmas páginas = mesma revisão
+export function chaveDoCache(pedido: PedidoRevisao): string {
+  const conteudo = pedido.paginas.map((p) => `${p.numero}\u0000${p.md}`).join('\u0001');
+  return `cache/${sha256(`${pedido.titulo}\u0002${conteudo}`)}`;
+}
+
+// Data no fuso do Pacífico, que é quando a cota do Gemini zera
+export function hoje(agora = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles' }).format(agora);
+}
+
+function numeroDaVariavel(nome: string, padrao: number): number {
+  const valor = Number(process.env[nome]);
+  return Number.isInteger(valor) && valor >= 0 ? valor : padrao;
+}
+
+async function lerContagem(chave: string): Promise<number> {
+  const valor = await loja().get(chave, { type: 'text' });
+  const n = Number(valor);
+  return Number.isInteger(n) && n > 0 ? n : 0;
+}
+
+// Reserva um uso antes de chamar a IA (a chamada gasta a cota mesmo se falhar).
+// Devolve a mensagem de erro, ou null se ainda há limite.
+async function reservarUso(pessoa: string): Promise<string | null> {
+  const dia = hoje();
+  const chaveGeral = `uso/${dia}/total`;
+  const chavePessoa = `uso/${dia}/pessoa/${pessoa}`;
+
+  const [geral, daPessoa] = await Promise.all([lerContagem(chaveGeral), lerContagem(chavePessoa)]);
+
+  if (geral >= numeroDaVariavel('LIMITE_DIARIO', LIMITE_DIARIO_PADRAO)) {
+    return 'O limite de revisões novas de hoje acabou. As revisões já geradas continuam disponíveis, e amanhã libera de novo.';
+  }
+  const limitePessoa = numeroDaVariavel('LIMITE_POR_PESSOA', LIMITE_POR_PESSOA_PADRAO);
+  if (daPessoa >= limitePessoa) {
+    return `Você já gerou ${limitePessoa} revisões novas hoje. As que você já tem continuam disponíveis, e amanhã libera de novo.`;
+  }
+
+  await Promise.all([
+    loja().set(chaveGeral, String(geral + 1)),
+    loja().set(chavePessoa, String(daPessoa + 1)),
+  ]);
+  return null;
+}
+
+// Identifica a pessoa pelo endereço de internet, guardado só como hash
+function identificarPessoa(req: Request, context?: Context): string {
+  const ip =
+    context?.ip ||
+    req.headers.get('x-nf-client-connection-ip') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'desconhecido';
+  return sha256(`easyread:${ip}`).slice(0, 32);
+}
+
+export default async (req: Request, context?: Context): Promise<Response> => {
   if (req.method !== 'POST') return json(405, { erro: 'Use POST.' });
 
   const chave = process.env.GEMINI_API_KEY;
@@ -152,10 +257,38 @@ export default async (req: Request): Promise<Response> => {
     return json(400, { erro: (erro as Error).message });
   }
 
+  const chaveCache = chaveDoCache(pedido);
+
   try {
+    // 1. Já foi gerada para estas páginas? Devolve sem gastar cota.
+    if (!pedido.nova) {
+      const guardada = await loja().get(chaveCache, { type: 'json' });
+      if (guardada) {
+        try {
+          return json(200, { ...validarRevisaoGerada(guardada, pedido.inicio, pedido.fim), reaproveitada: true });
+        } catch {
+          // guardada com problema: gera de novo
+        }
+      }
+    }
+
+    // 2. Confere os limites (admin não tem limite)
+    if (!requisicaoDeAdmin(req)) {
+      const bloqueio = await reservarUso(identificarPessoa(req, context));
+      if (bloqueio) return json(429, { erro: bloqueio });
+    }
+
+    // 3. Chama a IA e guarda para as próximas pessoas
     const revisao = await gerarRevisao(pedido, chave, process.env.GEMINI_MODEL || MODELO_PADRAO);
+    await loja().setJSON(chaveCache, revisao).catch((e) => console.error('Não foi possível guardar a revisão:', e));
     return json(200, revisao);
   } catch (erro) {
+    if (erro instanceof LimiteDaIA) {
+      return json(429, { erro: 'A cota da IA acabou por hoje. As revisões já geradas continuam disponíveis.' });
+    }
+    if (erro instanceof DemorouDemais) {
+      return json(504, { erro: 'A IA demorou demais para responder. Tente de novo, ou escolha menos páginas.' });
+    }
     console.error('Falha ao gerar revisão:', erro);
     return json(502, { erro: 'A IA não conseguiu gerar a revisão agora. Tente de novo em instantes.' });
   }

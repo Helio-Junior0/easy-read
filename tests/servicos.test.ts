@@ -83,7 +83,7 @@ describe('fluxo completo', () => {
     // offline com revisão salva funciona; sem revisão salva dá erro "offline"
     vi.stubGlobal('navigator', { onLine: false })
     await expect(obterRevisao(id, 1, 3)).resolves.toBeTruthy()
-    await expect(obterRevisao(id, 4, 5)).rejects.toMatchObject({ tipo: 'offline' })
+    await expect(obterRevisao(id, 4, 6)).rejects.toMatchObject({ tipo: 'offline' })
     vi.stubGlobal('navigator', { onLine: true })
 
     for (const p of [4, 5]) await registrarLeitura(id, p)
@@ -136,11 +136,18 @@ describe('fluxo completo', () => {
     await expect(obterRevisao(livro.id!, 0, 2)).rejects.toBeInstanceOf(ErroRevisao)
     await expect(obterRevisao(livro.id!, 3, 2)).rejects.toMatchObject({ tipo: 'intervalo' })
     await expect(obterRevisao(livro.id!, 1, livro.totalPaginas + 1)).rejects.toMatchObject({ tipo: 'intervalo' })
+    // menos de 3 páginas gasta a IA à toa
+    await expect(obterRevisao(livro.id!, 1, 2)).rejects.toMatchObject({ tipo: 'intervalo', message: expect.stringContaining('pelo menos 3') })
   })
 
   it('erro do servidor vira ErroRevisao do tipo servidor', async () => {
     const livro = await baixarLivro(item)
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ erro: 'falhou' }), { status: 502 })))
-    await expect(obterRevisao(livro.id!, 1, 2)).rejects.toMatchObject({ tipo: 'servidor', message: 'falhou' })
+    await expect(obterRevisao(livro.id!, 1, 3)).rejects.toMatchObject({ tipo: 'servidor', message: 'falhou' })
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ erro: 'limite' }), { status: 429 })))
+    await expect(obterRevisao(livro.id!, 1, 3)).rejects.toMatchObject({ tipo: 'limite', message: 'limite' })
+    // Netlify encerrou a função: resposta sem a nossa mensagem
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('Task timed out', { status: 502 })))
+    await expect(obterRevisao(livro.id!, 1, 3)).rejects.toMatchObject({ tipo: 'servidor', message: expect.stringContaining('demorou demais') })
   })
 })

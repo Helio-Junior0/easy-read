@@ -13,6 +13,8 @@ export interface PedidoRevisao {
   inicio: number;
   fim: number;
   paginas: PaginaEnviada[];
+  // true = ignora a revisão já gerada para estas páginas e pede uma nova à IA
+  nova?: boolean;
 }
 
 export interface PerguntaGerada {
@@ -28,6 +30,14 @@ export interface RevisaoGerada {
 }
 
 export const MAX_PAGINAS_POR_REVISAO = 50;
+
+// Revisão de poucas páginas gasta um pedido à IA à toa
+export const MIN_PAGINAS_POR_REVISAO = 3;
+
+// Mínimo de páginas exigido para um livro (livro curto pode ter menos de 3 páginas)
+export function minimoDePaginas(totalPaginas: number): number {
+  return Math.max(1, Math.min(MIN_PAGINAS_POR_REVISAO, totalPaginas));
+}
 
 // Quantas perguntas pedir para a IA, conforme o tamanho do trecho
 export function quantidadeDePerguntas(totalPaginas: number): number {

@@ -6,6 +6,7 @@
 import type { Revisao } from '../types/index';
 import {
   MAX_PAGINAS_POR_REVISAO,
+  minimoDePaginas,
   validarRevisaoGerada,
   type PedidoRevisao,
 } from '../shared/revisaoFormato';
@@ -17,10 +18,11 @@ import {
   salvarRevisao,
   salvarTentativa,
 } from './dbService';
+import { cabecalhoAdminSeLogado } from './adminService';
 
 export const URL_GERAR_REVISAO = '/api/gerar-revisao';
 
-export type TipoErroRevisao = 'offline' | 'intervalo' | 'servidor';
+export type TipoErroRevisao = 'offline' | 'intervalo' | 'servidor' | 'limite';
 
 export class ErroRevisao extends Error {
   tipo: TipoErroRevisao;
@@ -54,6 +56,10 @@ export async function obterRevisao(
   if (!Number.isInteger(inicio) || !Number.isInteger(fim) || inicio < 1 || fim < inicio || fim > livro.totalPaginas) {
     throw new ErroRevisao('intervalo', `Escolha páginas entre 1 e ${livro.totalPaginas}.`);
   }
+  const minimo = minimoDePaginas(livro.totalPaginas);
+  if (fim - inicio + 1 < minimo) {
+    throw new ErroRevisao('intervalo', `Escolha pelo menos ${minimo} páginas para revisar.`);
+  }
   if (fim - inicio + 1 > MAX_PAGINAS_POR_REVISAO) {
     throw new ErroRevisao('intervalo', `Escolha no máximo ${MAX_PAGINAS_POR_REVISAO} páginas por revisão.`);
   }
@@ -74,13 +80,15 @@ export async function obterRevisao(
     inicio,
     fim,
     paginas: paginas.map((p) => ({ numero: p.numero, md: semImagensEmbutidas(p.md) })),
+    nova: opcoes.gerarNova === true,
   };
 
   let resposta: Response;
   try {
     resposta = await fetch(URL_GERAR_REVISAO, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // O admin logado não tem limite de uso
+      headers: { 'Content-Type': 'application/json', ...cabecalhoAdminSeLogado() },
       body: JSON.stringify(pedido),
     });
   } catch {
@@ -95,8 +103,12 @@ export async function obterRevisao(
     );
   }
   if (!resposta.ok) {
-    const mensagem = (corpo as { erro?: string } | null)?.erro ?? 'A IA não conseguiu gerar a revisão agora.';
-    throw new ErroRevisao('servidor', mensagem);
+    // Sem mensagem nossa = o Netlify encerrou a função (tempo esgotado ou erro interno)
+    const padrao = [502, 503, 504].includes(resposta.status)
+      ? 'A IA demorou demais para responder. Tente de novo, ou escolha menos páginas.'
+      : 'A IA não conseguiu gerar a revisão agora.';
+    const mensagem = (corpo as { erro?: string } | null)?.erro ?? padrao;
+    throw new ErroRevisao(resposta.status === 429 ? 'limite' : 'servidor', mensagem);
   }
 
   let gerada;

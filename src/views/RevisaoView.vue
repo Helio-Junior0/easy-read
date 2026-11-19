@@ -9,7 +9,7 @@ import type { Livro, Quiz, Revisao } from '../types'
 import { buscarLivroPorId, buscarRevisao } from '../services/dbService'
 import { buscarProgresso, sugerirIntervalo } from '../services/leituraService'
 import { ErroRevisao, obterRevisao, registrarResultado } from '../services/revisaoService'
-import { MAX_PAGINAS_POR_REVISAO } from '../shared/revisaoFormato'
+import { MAX_PAGINAS_POR_REVISAO, minimoDePaginas } from '../shared/revisaoFormato'
 
 type Etapa = 'intervalo' | 'gerando' | 'resumo' | 'quiz' | 'resultado'
 
@@ -69,6 +69,12 @@ async function carregar() {
     const sugestao = await sugerirIntervalo(livroId.value)
     inicio.value = sugestao?.inicio ?? 1
     fim.value = sugestao?.fim ?? Math.max(ultimaLida.value, 1)
+    // Garante o mínimo de páginas puxando o início para trás
+    const min = minimoDePaginas(livro.value.totalPaginas)
+    if (fim.value - inicio.value + 1 < min) {
+      fim.value = Math.max(fim.value, min)
+      inicio.value = Math.max(1, fim.value - min + 1)
+    }
     // Respeita o limite de páginas por revisão
     if (fim.value - inicio.value + 1 > MAX_PAGINAS_POR_REVISAO) {
       inicio.value = fim.value - MAX_PAGINAS_POR_REVISAO + 1
@@ -91,6 +97,7 @@ watch(livroId, carregar)
 watch([inicio, fim], conferirSalva)
 
 const quantidade = computed(() => fim.value - inicio.value + 1)
+const minimo = computed(() => minimoDePaginas(livro.value?.totalPaginas ?? 1))
 
 async function gerar(gerarNova = false) {
   erro.value = ''
@@ -177,7 +184,10 @@ function novoIntervalo() {
           </label>
         </div>
 
-        <p v-if="quantidade > MAX_PAGINAS_POR_REVISAO" class="apoio apoio--alerta">
+        <p v-if="quantidade < minimo" class="apoio apoio--alerta">
+          Escolha pelo menos {{ minimo }} páginas para revisar.
+        </p>
+        <p v-else-if="quantidade > MAX_PAGINAS_POR_REVISAO" class="apoio apoio--alerta">
           Escolha no máximo {{ MAX_PAGINAS_POR_REVISAO }} páginas por revisão.
         </p>
         <p v-else-if="jaSalva" class="apoio">
@@ -187,7 +197,7 @@ function novoIntervalo() {
           O resumo e o quiz são gerados por IA a partir destas páginas. Precisa de internet só na primeira vez.
         </p>
 
-        <button type="submit" class="botao-principal" :disabled="quantidade < 1 || quantidade > MAX_PAGINAS_POR_REVISAO">
+        <button type="submit" class="botao-principal" :disabled="quantidade < minimo || quantidade > MAX_PAGINAS_POR_REVISAO">
           {{ jaSalva ? 'Abrir revisão' : 'Gerar resumo e quiz' }}
         </button>
       </form>
