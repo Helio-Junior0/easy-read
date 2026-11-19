@@ -1,39 +1,29 @@
-<<<<<<< Updated upstream
 {
   "livros": [
     {
-      "slug": "exemplo-git",
-      "titulo": "Git na Prática (livro de exemplo)",
-      "autor": "Equipe Easy Read",
-      "descricao": "Livro curto de exemplo para testar a leitura por páginas, o resumo e o quiz. Substituir pelos livros reais.",
-      "categoria": "Ferramentas",
-      "licenca": "Texto original da equipe, livre para uso no projeto",
-      "arquivo": "livros/exemplo-git.md"
+      "slug": "pense-em-python",
+      "titulo": "Pense em Python",
+      "autor": "Allen B. Downey",
+      "descricao": "Uma introdução à programação e ao pensamento computacional usando Python 3, do primeiro programa até classes, herança e análise de algoritmos.",
+      "categoria": "Programação",
+      "licenca": "Obra original sob licença Creative Commons BY-NC 3.0",
+      "arquivo": "livros/pense-em-python.md"
+    },
+    {
+      "slug": "teoria-matematica-da-comunicacao",
+      "titulo": "A Teoria Matemática da Comunicação",
+      "autor": "Claude Shannon e Warren Weaver",
+      "descricao": "Fundamentos clássicos da teoria da informação e da comunicação.",
+      "categoria": "Teoria da Informação",
+      "arquivo": "livros/teoria-matematica-da-comunicacao.md"
+    },
+    {
+      "slug": "cibernetica",
+      "titulo": "Cibernética: o controle e a comunicação no animal e na máquina",
+      "autor": "Norbert Wiener",
+      "descricao": "Resumo por capítulos da obra pioneira sobre controle, feedback e comunicação.",
+      "categoria": "Teoria da Informação",
+      "arquivo": "livros/cibernetica.md"
     }
   ]
 }
-=======
-[
-  {
-    "id": "a-teoria-matematica-da-comunicacao",
-    "titulo": "A Teoria Matemática da Comunicação",
-    "autor": "Claude Shannon e Warren Weaver",
-    "descricao": "Fundamentos clássicos da teoria da informação e comunicação.",
-    "arquivo": "/livros/a-teoria-matematica-da-comunicacao"
-  },
-  {
-    "id": "cibernetica",
-    "titulo": "Cibernética: Ou o Controle e a Comunicação no Animal e na Máquina",
-    "autor": "Norbert Wiener",
-    "descricao": "Estudo pioneiro sobre sistemas de controle, feedback e comunicação.",
-    "arquivo": "/livros/ciberne-tica-ou-o-controle-e-comunicac-a-o-no-animal-e-na-ma-quina"
-  },
-  {
-    "id": "pense-em-python",
-    "titulo": "Pense em Python",
-    "autor": "Allen B. Downey",
-    "descricao": "Introdução ao pensamento computacional e programação com Python.",
-    "arquivo": "/livros/Pense em Python"
-  }
-]
->>>>>>> Stashed changes

@@ -19,11 +19,35 @@ export interface ItemBiblioteca extends LivroCatalogo {
   totalPaginas?: number;
 }
 
-export async function buscarCatalogo(): Promise<LivroCatalogo[]> {
+// Livros que vêm junto com o app (public/livros/catalogo.json)
+async function buscarCatalogoFixo(): Promise<LivroCatalogo[]> {
   const resposta = await fetch(`${BASE}livros/catalogo.json`, { cache: 'no-cache' });
   if (!resposta.ok) throw new Error(`Não foi possível carregar o catálogo (${resposta.status}).`);
   const dados = (await resposta.json()) as { livros: LivroCatalogo[] };
-  return dados.livros;
+  return dados.livros.map((l) => ({ ...l, origem: 'fixo' as const }));
+}
+
+// Livros adicionados pelo painel de admin (Netlify Blobs)
+async function buscarCatalogoAdmin(): Promise<LivroCatalogo[]> {
+  const resposta = await fetch('/api/livros', { cache: 'no-store' });
+  if (!resposta.ok) throw new Error(`Não foi possível carregar os livros do painel (${resposta.status}).`);
+  const dados = (await resposta.json()) as { livros: LivroCatalogo[] };
+  return dados.livros.map((l) => ({ ...l, origem: 'admin' as const }));
+}
+
+// Junta os dois catálogos. Se um deles falhar, usa o outro; se os dois falharem, lança erro.
+export async function buscarCatalogo(): Promise<LivroCatalogo[]> {
+  const [fixo, doAdmin] = await Promise.allSettled([buscarCatalogoFixo(), buscarCatalogoAdmin()]);
+  if (fixo.status === 'rejected' && doAdmin.status === 'rejected') throw fixo.reason;
+
+  const livros: LivroCatalogo[] = [];
+  for (const resultado of [fixo, doAdmin]) {
+    if (resultado.status !== 'fulfilled') continue;
+    for (const livro of resultado.value) {
+      if (!livros.some((l) => l.slug === livro.slug)) livros.push(livro);
+    }
+  }
+  return livros;
 }
 
 // Catálogo + o que já está baixado. Sem internet, mostra só os livros baixados.
@@ -72,6 +96,7 @@ export async function baixarLivro(item: LivroCatalogo): Promise<Livro> {
     descricao: item.descricao,
     categoria: item.categoria,
     licenca: item.licenca,
+    origem: item.origem,
     arquivo: item.arquivo,
     totalPaginas: paginas.length,
     baixadoEm: new Date(),

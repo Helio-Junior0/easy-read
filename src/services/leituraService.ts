@@ -3,6 +3,7 @@ import {
   buscarLivroPorId,
   buscarPaginasLidas,
   buscarRevisoesPorLivro,
+  buscarUltimaLeitura,
   buscarUltimaPaginaLida,
   marcarPaginaLida,
 } from './dbService';
@@ -52,4 +53,13 @@ export async function sugerirIntervalo(livroId: number): Promise<{ inicio: numbe
   return { inicio, fim: ultimaLida };
 }
 
-export { buscarPagina, buscarPaginas } from './dbService';
+export { buscarPagina, buscarPaginas, buscarCapituloDaPagina } from './dbService';
+
+// Para onde o botão "Continuar" leva: a página seguinte à última lida, em qualquer livro
+export async function buscarOndeContinuar(): Promise<{ livroId: number; pagina: number } | null> {
+  const ultima = await buscarUltimaLeitura();
+  if (!ultima) return null;
+  const livro = await buscarLivroPorId(ultima.livroId);
+  if (!livro) return null;
+  return { livroId: ultima.livroId, pagina: Math.min(ultima.pagina + 1, livro.totalPaginas) };
+}

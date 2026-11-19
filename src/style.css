@@ -1,20 +1,28 @@
 :root {
-  /* Paleta "Spiced" */
-  --cor-texto: #2e1e1a;
-  --cor-primaria: #8a1e1e;
-  --cor-secundaria: #c06a30;
-  --cor-destaque: #f2b24a;
-  --cor-superficie: #edcdb5;
-  --cor-fundo: #e8e2d0;
-  --cor-acerto: #4f7a3a;
-  --cor-erro: #8a1e1e;
+  /* Paleta vinho e creme */
+  --cor-texto: #1d1513;
+  --cor-texto-suave: #7d6f6a;
+  --cor-primaria: #6d1028;
+  --cor-primaria-escura: #560b20;
+  --cor-secundaria: #a8435c;
+  --cor-destaque: #f0dadd;
+  --cor-superficie: #fbf8f4;
+  --cor-fundo: #f3eee8;
+  --cor-borda: #ecd8da;
+  --cor-acerto: #3d6b3a;
+  --cor-erro: #a3261c;
   /* Texto sobre --cor-primaria, --cor-acerto e --cor-erro */
   --cor-texto-claro: #ffffff;
 
-  --largura-maxima: 720px;
-  --raio: 12px;
+  --fonte-titulo: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --fonte-texto: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --fonte-codigo: ui-monospace, 'Cascadia Code', Consolas, Menlo, monospace;
 
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --largura-maxima: 720px;
+  --raio: 16px;
+  --sombra: 0 6px 18px rgba(60, 20, 30, 0.08);
+
+  font-family: var(--fonte-texto);
   font-size: 16px;
   line-height: 1.5;
   color-scheme: light;
@@ -37,18 +45,22 @@ body {
 }
 
 h1,
-h2 {
-  line-height: 1.2;
+h2,
+h3 {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-variant-numeric: lining-nums;
+  line-height: 1.15;
   color: var(--cor-texto);
 }
 
 h1 {
-  font-size: 1.75rem;
+  font-size: 2.1rem;
   margin: 0 0 0.5rem;
 }
 
 h2 {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   margin: 1.5rem 0 0.75rem;
 }
 
@@ -56,37 +68,33 @@ p {
   margin: 0 0 1rem;
 }
 
-/* --cor-secundaria não tem contraste suficiente como cor de texto,
-   por isso os links usam --cor-primaria e a secundaria no sublinhado */
 a {
   color: var(--cor-primaria);
-  text-decoration-color: var(--cor-secundaria);
-  text-decoration-thickness: 2px;
+  text-decoration-color: color-mix(in srgb, var(--cor-primaria) 35%, transparent);
+  text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 
 a:hover {
-  text-decoration-thickness: 4px;
+  text-decoration-color: var(--cor-primaria);
 }
 
 :focus-visible {
-  outline: 3px solid var(--cor-primaria);
+  outline: 3px solid var(--cor-secundaria);
   outline-offset: 2px;
 }
 
-/* Rótulo pequeno acima dos títulos (ex.: "Livro #1") */
+/* Rótulo pequeno em maiúsculas acima dos títulos (ex.: "PROGRAMAÇÃO") */
 .rotulo {
   display: inline-block;
-  margin: 0 0 0.5rem;
-  padding: 0.1rem 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--cor-texto);
-  background: var(--cor-destaque);
-  border-radius: 999px;
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cor-primaria);
 }
 
-/* Lista de cards clicáveis (livros, capítulos) */
 .lista-cards {
   list-style: none;
   margin: 0;
@@ -99,18 +107,12 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  min-height: 56px;
-  padding: 0.9rem 1rem;
+  padding: 1rem 1.1rem;
   color: var(--cor-texto);
   text-decoration: none;
   background: var(--cor-superficie);
-  border-left: 6px solid var(--cor-secundaria);
+  border: 1px solid var(--cor-borda);
   border-radius: var(--raio);
-}
-
-.card:hover {
-  border-left-color: var(--cor-destaque);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--cor-texto) 15%, transparent);
 }
 
 .card__titulo {
@@ -124,25 +126,25 @@ a:hover {
   justify-content: center;
   width: 100%;
   min-height: 48px;
-  padding: 0 1.25rem;
+  padding: 0 1.5rem;
   font: inherit;
   font-weight: 700;
   color: var(--cor-texto-claro);
   text-decoration: none;
   background: var(--cor-primaria);
   border: 0;
-  border-radius: var(--raio);
+  border-radius: 999px;
   cursor: pointer;
+  transition: background 0.15s;
 }
 
 .botao-principal:hover {
-  box-shadow: inset 0 -4px 0 var(--cor-destaque);
+  background: var(--cor-primaria-escura);
 }
 
 .botao-principal:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 @media (min-width: 600px) {

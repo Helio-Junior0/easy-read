@@ -16,8 +16,8 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        background_color: '#E8E2D0',
-        theme_color: '#8A1E1E',
+        background_color: '#F3EEE8',
+        theme_color: '#560B20',
         icons: [
           { src: 'logoo_easyread_little.png', sizes: '192x192', type: 'image/png' },
           { src: 'logo_easyread.png', sizes: '512x512', type: 'image/png' },
@@ -26,7 +26,7 @@ export default defineConfig({
       },
       includeManifestIcons: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         navigateFallback: '/index.html',
         // Rotas da API e os livros não podem cair no index.html
         navigateFallbackDenylist: [/^\/api\//, /^\/livros\//],

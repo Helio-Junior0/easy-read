@@ -60,7 +60,7 @@ Capítulo 11 : XI - LINGUAGEM, CONFUSÃO E
 
 INTERFERÊNCIA
 
-## Capítulo 1 Resumo : I - CIBERNÉTICA OU O CONTROLE E COMUNICAÇÃO NO ANIMAL E NA MÁQUINA
+# Capítulo 1 Resumo : I - CIBERNÉTICA OU O CONTROLE E COMUNICAÇÃO NO ANIMAL E NA MÁQUINA
 
 **I CIBERNÉTICA OU O CONTROLE E** **COMUNICAÇÃO NO ANIMAL E NA MÁQUINA**
 
@@ -159,7 +159,7 @@ Wiener enfatiza a complexidade do progresso—embora enfrente a entropia, deve s
 
 Interpretação crítica:A discussão de Wiener sobre a interação entre entropia e progresso provoca um exame crítico sobre se nossos avanços levarão, em última análise, a melhorias ou danos. Embora ele posicione que os mecanismos de feedback, tanto em máquinas quanto em organismos, permitem adaptação e organização, essa perspectiva pode simplificar demais a relação intrincada entre o crescimento tecnológico e a sustentabilidade ecológica. Críticos podem argumentar que nosso impulso por progresso pode agravar a degradação ambiental e as desigualdades sociais, como destacado por fontes como Tim Jackson em "Prosperidade Sem Crescimento" e as críticas ecológicas da modernidade delineadas por Bruno Latour em "Nunca Fomos Modernos." Essas perspectivas nos lembram que a noção de progresso não é inerentemente positiva e deve ser continuamente examinada para evitar consequências indesejadas e prejudiciais.
 
-## Capítulo 3 Resumo : III - RIGIDEZ E APRENDIZADO: DOIS PADRÕES DE COMPORTAMENTO
+# Capítulo 3 Resumo : III - RIGIDEZ E APRENDIZADO: DOIS PADRÕES DE COMPORTAMENTO
 
 ## COMUNICATIVO
 
@@ -253,7 +253,7 @@ Informações significativas são moldadas pela compreensão cultural e pelos fi
 
  A Cibernética busca entender a semântica da linguagem, focando em como o significado é preservado em meio aos desafios da comunicação. O objetivo é manter a clareza e prevenir a perda de informações significativas através de diversos canais.
 
-## Capítulo 5 Resumo : V - ORGANIZAÇÃO COMO A
+# Capítulo 5 Resumo : V - ORGANIZAÇÃO COMO A
 
 ## MENSAGEM
 
@@ -291,7 +291,7 @@ Exemplos de gêmeos idênticos e as implicações da divisão celular destacam a
 
  O capítulo conclui propondo que a distinção entre a transmissão física e a transmissão de mensagens não é absoluta. Argumenta a favor da plausibilidade de avanços futuros na transmissão de padrões biológicos intricados, redefinindo a essência da comunicação e da existência humana. Em última análise, o foco repousa na transmissão de mensagens como um elemento central da organização humana.
 
-## Capítulo 6 Resumo : VI - DIREITO E COMUNICAÇÃO
+# Capítulo 6 Resumo : VI - DIREITO E COMUNICAÇÃO
 
 **VI DIREITO E COMUNICAÇÃO**
 
@@ -315,7 +315,7 @@ Um código legal justo requer clareza para que os indivíduos possam entender se
 
 ### texto completo e áudio
 
-## Capítulo 7 Resumo : VII - COMUNICAÇÃO, SEGREDO E POLÍTICA SOCIAL
+# Capítulo 7 Resumo : VII - COMUNICAÇÃO, SEGREDO E POLÍTICA SOCIAL
 
 **VII COMUNICAÇÃO, SEGREDO E POLÍTICA** **SOCIAL**
 
@@ -367,7 +367,7 @@ A corrida armamentista contínua gerada pela pesquisa militar leva à entropia s
 
 1. ideal de transparência na comunicação.
 
-## Capítulo 8 Resumo : VIII - PAPEL DO INTELECTUAL E DO CIENTISTA
+# Capítulo 8 Resumo : VIII - PAPEL DO INTELECTUAL E DO CIENTISTA
 
 **VIII PAPEL DO INTELECTUAL E DO** **CIENTISTA**
 
@@ -397,7 +397,7 @@ O sistema educacional atual é criticado por priorizar o prestígio social assoc
 
  Wiener enfatiza a necessidade de uma comunicação real impulsionada pela necessidade, em vez de prestígios superficiais. A busca por ideias originais, seja na ciência ou na arte, é crucial para enriquecer o panorama cultural, e há uma forte condenação da complacência em caminhos educacionais convencionais que inibem a criatividade.
 
-## Capítulo 9 Resumo : IX - A PRIMEIRA E A SEGUNDA REVOLUÇÃO INDUSTRIAL
+# Capítulo 9 Resumo : IX - A PRIMEIRA E A SEGUNDA REVOLUÇÃO INDUSTRIAL
 
 **IX A PRIMEIRA E A SEGUNDA REVOLUÇÃO** **INDUSTRIAL**
 
@@ -427,7 +427,7 @@ O capítulo explora a interação entre a comunicação humana e a comunicação
 
 ### texto completo e áudio
 
-## Capítulo 10 Resumo : X - ALGUMAS MÁQUINAS DE COMUNICAÇÃO E SEU FUTURO
+# Capítulo 10 Resumo : X - ALGUMAS MÁQUINAS DE COMUNICAÇÃO E SEU FUTURO
 
 **RESUMO DO CAPÍTULO 10: ALGUMAS** **MÁQUINAS DE COMUNICAÇÃO E SEU** **FUTURO**
 
@@ -474,7 +474,7 @@ Este resumo encapsula as discussões de Wiener sobre máquinas de comunicação,
 
 **Exemplo** Ponto chave:Compreender o impacto transformador dos mecanismos de feedback nas máquinas reflete a complexa interação na comunicação humana. Exemplo:Imagine que você está usando um dispositivo sofisticado projetado para melhorar sua fala convertendo vibrações sonoras em informações táteis. Enquanto você lê as palavras em voz alta, o dispositivo vibra em resposta aos sons que produz, proporcionando feedback em tempo real. Você percebe que esse mecanismo de feedback ajuda a ajustar sua técnica de fala, semelhante a como você pode instintivamente corrigir sua postura ao tentar alcançar uma prateleira mais alta. Assim como seu corpo aprende através da prática e do feedback, essas máquinas incorporam princípios semelhantes para ajudar os usuários a aprimorar suas habilidades. Esse paralelo enfatiza a importância do feedback na aprendizagem e no desenvolvimento, mostrando como sistemas cibernéticos ou o controle e comunicação no animal e na máquina podem capacitar indivíduos, especialmente em contextos como reabilitação ou assistência na comunicação.
 
-## Capítulo 11 Resumo : XI - LINGUAGEM, CONFUSÃO E INTERFERÊNCIA
+# Capítulo 11 Resumo : XI - LINGUAGEM, CONFUSÃO E INTERFERÊNCIA
 
 **XI LINGUAGEM, CONFUSÃO E** **INTERFERÊNCIA**
 
@@ -620,7 +620,7 @@ vez menos para mais e mais pessoas.
 4. A ciência é impossível sem fé... sem fé de que a natureza está sujeita à lei, não pode haver ciência.
 5. Uma fé que seguimos por ordens impostas de fora não é fé, e uma comunidade que coloca sua dependência nessa pseudo-fé está inevitavelmente destinada a se destruir.
 
-## Cibernética ou o controle e comunicação no animal e na máquina Perguntas
+# Cibernética ou o controle e comunicação no animal e na máquina Perguntas
 
 [Ver no site do Bookey](https://www.bookey.app/pt/book/cibern%C3%A9tica-ou-o-controle-e-comunica%C3%A7%C3%A3o-no-animal-e-na-m%C3%A1quina/qa)
 
@@ -1033,7 +1033,7 @@ Resposta:Wiener acredita que adotar uma mentalidade militar pode desqualificar o
 
 8. **Pergunta** **Como Wiener vê a relação entre a comunidade científica** **e as pressões externas da sociedade ou da autoridade?** Resposta:Wiener argumenta que as pressões externas de entidades sociais ou autoritárias podem impor conformidade e sufocar a liberdade intelectual necessária para o avanço científico, levando à deterioração da verdadeira investigação científica.
 
-## Cibernética ou o controle e comunicação no animal e na máquina Quiz e teste
+# Cibernética ou o controle e comunicação no animal e na máquina Quiz e teste
 
 [Ver a resposta correta no site do Bookey](https://www.bookey.app/pt/book/cibern%C3%A9tica-ou-o-controle-e-comunica%C3%A7%C3%A3o-no-animal-e-na-m%C3%A1quina/quiz)
 

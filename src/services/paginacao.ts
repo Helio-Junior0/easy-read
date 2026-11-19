@@ -5,7 +5,8 @@
 // - só corta entre blocos (parágrafo, lista, tabela, título, código);
 // - nunca corta no meio de um bloco de código;
 // - título nunca fica sozinho no fim de uma página;
-// - títulos # e ## começam página nova quando a página atual já tem conteúdo razoável;
+// - título de capítulo (#) sempre começa página nova;
+// - título de seção (##) começa página nova quando a página atual já tem conteúdo razoável;
 // - parágrafo gigante é quebrado entre frases.
 //
 // A função é determinística: o mesmo .md gera sempre as mesmas páginas.
@@ -139,10 +140,12 @@ export function paginar(md: string): string[] {
     }
     const palavrasGrupo = grupo.reduce((soma, b) => soma + b.palavras, 0);
 
-    const comecaCapitulo = bloco.titulo === 1 || bloco.titulo === 2;
+    // Capítulo (#) sempre abre página nova; seção (##) só se a página já tiver conteúdo razoável
+    const comecaCapitulo = bloco.titulo === 1 && palavras > 0;
+    const comecaSecao = bloco.titulo === 2 && palavras >= MINIMO_ANTES_DE_CAPITULO;
     const estoura = palavras > 0 && palavras + palavrasGrupo > PALAVRAS_POR_PAGINA;
 
-    if (estoura || (comecaCapitulo && palavras >= MINIMO_ANTES_DE_CAPITULO)) {
+    if (estoura || comecaCapitulo || comecaSecao) {
       fecharPagina();
     }
 

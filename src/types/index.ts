@@ -6,7 +6,9 @@ export interface LivroCatalogo {
   descricao?: string;
   categoria?: string;
   licenca?: string;
-  arquivo: string; // caminho do .md dentro de public/, ex.: "livros/pro-git.md"
+  // 'fixo' = veio com o app; 'admin' = adicionado pelo painel
+  origem?: 'fixo' | 'admin';
+  arquivo: string; // de onde baixar o .md, ex.: "livros/pro-git.md" ou "api/livros/pro-git"
 }
 
 // Livro já baixado para o IndexedDB
@@ -21,6 +23,8 @@ export interface Pagina {
   livroId: number;
   numero: number; // começa em 1
   md: string;
+  // Título do capítulo (último "# Título") em que a página está
+  capitulo?: string;
 }
 
 // Registro de que a pessoa leu uma página

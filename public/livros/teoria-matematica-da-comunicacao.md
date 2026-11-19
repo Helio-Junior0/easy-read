@@ -1,6 +1,4 @@
-## l 
-
-## A teoria matemática da comunicação\* 
+# A teoria matemática da comunicação\* 
 
 1. WEAvER 
 
@@ -13,8 +11,6 @@ Parece haver três níveis de problemas em comunicação: 1 técnico; 2) semânt
 Os problemas técnicos referem-se à precisão na transferência de informações do emissor para o receptor. São inerentes a tôdas as formas de comunicação, seja por conjuntos de símbolos dis- cretos (palavra escrita), por um sinal variável (transmissão da 
 
 \*) W. Weaver, “The Mathematics of Communication”, Scientific American, 
-
-### 96 — Código, mensagem e sociedade 
 
 voz ou de música, por telefone ou rádio) ou por um padrão bidimensional variável (televisão). 
 
@@ -35,8 +31,6 @@ nicos sistema tica Poder-se-ia é envolvem eficácia abrangem de comunicações,
 municação, 
 
 Como triaco Ludwig Boltzmann Esta salientou teoria não o matemático é, de (século maneira John xIX) von alguma, sugeriu que Neumann, inteiramente O alguns físico nova. con- aus- 
-
-### À teoria matemática da comunicação — 9? 
 
 ceitos de mecânica estatística eram aplicáveis ao conceito de informação. Outros cientistas, especialmente Norbert Wiener, do Instituto de Tecnologia de Massachusetts, fizeram im ortantes contribuições. O trabalho a que nos referiremos aqui é o de Claude Shannon, da Bell Telephone Laboratories, o qual foi precedido de outro, realizado por H. Nyquist e R. V.L Harte ; na mesma organização. fsse trabalho refere-se, primordialmente ao problema técnico apenas, mas a teoria tem uma significa ão mais ampla. Para começar, o significado e a eficácia são inevi- távelmente restringidos pelos limites teóricos de precisão na transmissão de símbolos. Mais significativo, ainda, é que a aná- lise teórica do problema técnico revela que êste se justapõe, mais 
 
@@ -62,7 +56,7 @@ A fonte de informação seleciona uma mensagem desejada a partir de um conjunto 
 
 O receptor é uma espécie de transmissor ao inverso, que transforma, novamente» o sinal transmitido em mensagem de vando-a a seu destino. Quando eu falo com você, meu cérebro é à fonte de informação e o seu é o destinatário; meu sistema vocal é o transmissor e o seu ouvido, com o oitavo nervo, o 
 
-### receptor.
+receptor.
 
 No processo de transmissão do sinal, é infelizmente carac- terístico que certas coisas não pretendidas pela fonte de infor- mação sejam acrescidas ao sinal. Êsses acréscimos inúteis podem ser distorções de som (na telefonia, por exemplo), estática (no rádio), distorções na forma ou tons de uma imagem (televisão), erros de transmissão (telegrafia ou fac-símile). Tôdas essas alte- rações no sinal podem ser chamadas de ruído. 
 
@@ -188,8 +182,6 @@ O conceito de informação desenvolvido nesta teoria parece, à primeira vista, 
 
 Com um nôvo exame da teoria, no entanto, vimos que esta análise é tão esclarecedora que talvez estejamos, pela primeira vez, em condições de formular uma verdadeira teoria do signifi- cado, Uma teoria técnica (“engineering theory”) da comuni- cação é como uma funcionária muito eficiente e discreta dos Correios e Telégrafos ao passar nosso telegrama. O significado não a preocupa, seja êle triste, alegre ou embaraçoso, mas ela tem que saber encaminhar adequadamente tôdas as mensagens que passam por suas mãos,
 
-## 86 — Código, mensagem e sociedade 
-
 Seguramente, não é insignificante para a comunicação em geral essa idéia de que um sistema de comunicação deve tentar lidar com tôdas as mensagens possíveis, e que a forma adequada de se tentar isso é basear o esquema no caráter estatístico da fonte. A língua deve ser concebida, ou desenvolvida, tendo em vista a totalidade das coisas que o homem possa querer dizer; mas, não sendo capaz de abranger aquela totalidade, ela deve aproximar-se disso o máximo e o mais frequentemente possível. Vale dizer: a linguagem deve executar sua tarefa de uma maneira estatística. 
 
 Esse estudo revela, à guisa de exemplo, fatos sôbre a estru- 
@@ -203,8 +195,6 @@ mação e o significado podem estar sujeitos a alguma restrição conjunta, de t
 (\*) \[A referência, aqui, é a certos desenvolvimentos da fisica teórica na pri- 
 
 meira metade dêste século. A respeito, pareceu-nos conveniente recorrer a uma exposição não-técnica, mas autorizada, feita pelo físico responsável pela formulação do chamado “princípio da indeterminação”, a que se alude no texto acima: “(...) Esta utilização de leis estatísticas encontrou sua forma definitiva na segunda metade do século passado, pela mecânica dita estatística. Nessa teoria (...) examinaram-se as consegiiências do conhecimento incompleto de wm sistema mecânico complexo. (...) Gibbs e Boltzmann conseguiram exprimir, objetivamente, em fórmulas mate- máticas o gênero ao qual pertence o conhecimento incompleto, e sobretudo Gibbs soube mostrar que o conceito de temperatura está estreitamente ligado a um conhecimento incompleto. Conhecer a temperatura de um sistema significa que êsse sistema faz parte de um grupo de sistemas equivalentes. Pode-se formular com precisão matemática êsse grupo de sistemas, mas não o sistema isolado do qual se trata. (...) Ainda que, desde as descobertas de Gibbs e Boltzmann, o conheci- mento incompleto de um sistema tenha sido incorporado à formulação de leis físicas, não Planck: se abandonou a teoria dos o quanta. princípio Planck do determinismo (...) mostrou até que a célebre um átomo invenção radiante de Max não emite sua energia de modo contínuo mas descontinuamente, por choque \[por uni- dades discretas, ditas quanta\] (...) Foram, contudo, necessários 25 anos para achar que, com efeito, a teoria dos quanta constrange a uma formulação estatística das leis é à abandonar o princípio do determinismo. (...) Como não posso enunciar aqui 
-
-## 4 teoria matemática da comunicação — 87 
 
 a Pode ocorrer, também, ser possível demonstrar que signifi- cado é análogo a uma das quantidades da qual depende a en- tropia de um conjunto termodinâmico. Nesse caso Eddington faz outra observação oportuna: 
 

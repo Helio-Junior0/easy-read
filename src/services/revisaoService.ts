@@ -32,6 +32,11 @@ export class ErroRevisao extends Error {
   }
 }
 
+// Imagens embutidas (data:image/...;base64) são enormes e não ajudam a IA: viram só "[figura]"
+export function semImagensEmbutidas(md: string): string {
+  return md.replace(/!\[([^\]]*)\]\(data:[^)]*\)/g, (_m, alt: string) => (alt ? `[figura: ${alt}]` : '[figura]'));
+}
+
 interface OpcoesGerar {
   // true = ignora a revisão salva e pede uma nova para a IA
   gerarNova?: boolean;
@@ -68,7 +73,7 @@ export async function obterRevisao(
     autor: livro.autor,
     inicio,
     fim,
-    paginas: paginas.map((p) => ({ numero: p.numero, md: p.md })),
+    paginas: paginas.map((p) => ({ numero: p.numero, md: semImagensEmbutidas(p.md) })),
   };
 
   let resposta: Response;
