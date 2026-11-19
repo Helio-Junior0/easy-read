@@ -26,7 +26,7 @@ export function ultimoTituloDeCapitulo(md: string): string | undefined {
     if (/^\s*(```|~~~)/.test(linha)) dentroDeCodigo = !dentroDeCodigo;
     else if (!dentroDeCodigo) {
       const m = /^#\s+(.+?)\s*#*$/.exec(linha);
-      if (m) titulo = m[1].replace(/[*_`]/g, '').trim();
+      if (m) titulo = m[1].replace(/\\(.)/g, '$1').replace(/[*_`]/g, '').trim();
     }
   }
   return titulo;

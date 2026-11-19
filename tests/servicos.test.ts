@@ -115,6 +115,7 @@ describe('fluxo completo', () => {
     const { buscarCapituloDaPagina, buscarOndeContinuar } = await import('../src/services/leituraService')
     const { ultimoTituloDeCapitulo } = await import('../src/services/dbService')
     expect(ultimoTituloDeCapitulo('# Um\n\n```\n# comentário\n```\n\n# **Dois** #')).toBe('Dois')
+    expect(ultimoTituloDeCapitulo('# A teoria\\* ')).toBe('A teoria')
 
     const livro = await baixarLivro(item)
     expect(await buscarCapituloDaPagina(livro.id!, 1)).toBe('Git na Prática')
