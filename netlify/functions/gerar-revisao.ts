@@ -28,6 +28,17 @@ import {
 const MODELO_PADRAO = 'gemini-2.5-flash';
 
 class LimiteDaIA extends Error {}
+class DemorouDemais extends Error {}
+
+// O Netlify (plano grátis) encerra a função em 10 segundos. Desistimos um pouco antes
+// para devolver uma mensagem clara em vez de um erro sem explicação.
+const TEMPO_MAXIMO_MS = 9_000;
+
+// O "raciocínio" do Gemini 2.5 Flash deixa a resposta lenta demais para os 10 segundos.
+// Para resumo e quiz de um trecho ele não é necessário, então fica desligado.
+function configuracaoDoModelo(modelo: string): Record<string, unknown> {
+  return /^gemini-2\.5-flash/.test(modelo) ? { thinkingConfig: { thinkingBudget: 0 } } : {};
+}
 const MAX_CARACTERES = 200_000;
 const TENTATIVAS = 1; // cada tentativa gasta um pedido da cota
 const LIMITE_DIARIO_PADRAO = 150;
@@ -113,18 +124,28 @@ const ESQUEMA_RESPOSTA = {
 
 async function chamarGemini(prompt: string, chave: string, modelo: string): Promise<unknown> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`;
-  const resposta = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.4,
-        responseMimeType: 'application/json',
-        responseSchema: ESQUEMA_RESPOSTA,
-      },
-    }),
-  });
+  let resposta: Response;
+  try {
+    resposta = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
+      signal: AbortSignal.timeout(TEMPO_MAXIMO_MS),
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 4096,
+          responseMimeType: 'application/json',
+          responseSchema: ESQUEMA_RESPOSTA,
+          ...configuracaoDoModelo(modelo),
+        },
+      }),
+    });
+  } catch (erro) {
+    const nome = (erro as Error)?.name;
+    if (nome === 'TimeoutError' || nome === 'AbortError') throw new DemorouDemais('Gemini demorou demais.');
+    throw erro;
+  }
 
   if (resposta.status === 429) throw new LimiteDaIA('Cota do Gemini esgotada.');
   if (!resposta.ok) {
@@ -152,7 +173,7 @@ export async function gerarRevisao(
       const bruto = await chamarGemini(prompt, chave, modelo);
       return validarRevisaoGerada(bruto, pedido.inicio, pedido.fim);
     } catch (erro) {
-      if (erro instanceof LimiteDaIA) throw erro;
+      if (erro instanceof LimiteDaIA || erro instanceof DemorouDemais) throw erro;
       ultimoErro = erro;
     }
   }
@@ -264,6 +285,9 @@ export default async (req: Request, context?: Context): Promise<Response> => {
   } catch (erro) {
     if (erro instanceof LimiteDaIA) {
       return json(429, { erro: 'A cota da IA acabou por hoje. As revisões já geradas continuam disponíveis.' });
+    }
+    if (erro instanceof DemorouDemais) {
+      return json(504, { erro: 'A IA demorou demais para responder. Tente de novo, ou escolha menos páginas.' });
     }
     console.error('Falha ao gerar revisão:', erro);
     return json(502, { erro: 'A IA não conseguiu gerar a revisão agora. Tente de novo em instantes.' });

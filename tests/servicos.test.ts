@@ -146,5 +146,8 @@ describe('fluxo completo', () => {
     await expect(obterRevisao(livro.id!, 1, 3)).rejects.toMatchObject({ tipo: 'servidor', message: 'falhou' })
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ erro: 'limite' }), { status: 429 })))
     await expect(obterRevisao(livro.id!, 1, 3)).rejects.toMatchObject({ tipo: 'limite', message: 'limite' })
+    // Netlify encerrou a função: resposta sem a nossa mensagem
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('Task timed out', { status: 502 })))
+    await expect(obterRevisao(livro.id!, 1, 3)).rejects.toMatchObject({ tipo: 'servidor', message: expect.stringContaining('demorou demais') })
   })
 })

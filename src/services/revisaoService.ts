@@ -103,7 +103,11 @@ export async function obterRevisao(
     );
   }
   if (!resposta.ok) {
-    const mensagem = (corpo as { erro?: string } | null)?.erro ?? 'A IA não conseguiu gerar a revisão agora.';
+    // Sem mensagem nossa = o Netlify encerrou a função (tempo esgotado ou erro interno)
+    const padrao = [502, 503, 504].includes(resposta.status)
+      ? 'A IA demorou demais para responder. Tente de novo, ou escolha menos páginas.'
+      : 'A IA não conseguiu gerar a revisão agora.';
+    const mensagem = (corpo as { erro?: string } | null)?.erro ?? padrao;
     throw new ErroRevisao(resposta.status === 429 ? 'limite' : 'servidor', mensagem);
   }
 

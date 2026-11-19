@@ -136,6 +136,28 @@ describe('função gerar-revisao', () => {
     expect((await r.json()).erro).toContain('cota da IA acabou')
   })
 
+  it('desliga o raciocínio do 2.5 Flash para responder dentro dos 10 segundos', async () => {
+    vi.stubEnv('GEMINI_API_KEY', 'chave')
+    const fetchMock = vi.fn(async () => respostaGemini(revisaoOk))
+    vi.stubGlobal('fetch', fetchMock)
+    await handler(req(pedido), ctx('1.1.1.1'))
+    const corpo = JSON.parse((fetchMock.mock.calls[0] as any)[1].body)
+    expect(corpo.generationConfig.thinkingConfig).toEqual({ thinkingBudget: 0 })
+    expect((fetchMock.mock.calls[0] as any)[1].signal).toBeDefined()
+
+    vi.stubEnv('GEMINI_MODEL', 'gemini-2.5-pro')
+    await handler(req({ ...pedido, nova: true }), ctx('1.1.1.1'))
+    expect(JSON.parse((fetchMock.mock.calls[1] as any)[1].body).generationConfig.thinkingConfig).toBeUndefined()
+  })
+
+  it('IA lenta vira 504 com mensagem clara', async () => {
+    vi.stubEnv('GEMINI_API_KEY', 'chave')
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new DOMException('tempo', 'TimeoutError') }))
+    const r = await handler(req(pedido), ctx('1.1.1.1'))
+    expect(r.status).toBe(504)
+    expect((await r.json()).erro).toContain('demorou demais')
+  })
+
   it('o dia segue o fuso do Pacífico', () => {
     expect(hoje(new Date('2026-11-20T06:00:00Z'))).toBe('2026-11-19')
     expect(hoje(new Date('2026-11-20T09:00:00Z'))).toBe('2026-11-20')
