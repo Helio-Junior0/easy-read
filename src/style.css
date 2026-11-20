@@ -1,16 +1,16 @@
 :root {
-  /* Paleta vinho e creme */
-  --cor-texto: #1d1513;
-  --cor-texto-suave: #7d6f6a;
-  --cor-primaria: #6d1028;
-  --cor-primaria-escura: #560b20;
-  --cor-secundaria: #a8435c;
-  --cor-destaque: #f0dadd;
-  --cor-superficie: #fbf8f4;
-  --cor-fundo: #f3eee8;
-  --cor-borda: #ecd8da;
-  --cor-acerto: #3d6b3a;
-  --cor-erro: #a3261c;
+  /* Paleta SPICED */
+  --cor-texto: #3b2420;
+  --cor-texto-suave: #6b5a52;
+  --cor-primaria: #8b1e1e;
+  --cor-primaria-escura: #3b2420;
+  --cor-secundaria: #f0b44c;
+  --cor-destaque: #eccbb4;
+  --cor-superficie: #faf7f2;
+  --cor-fundo: #e8e2d0;
+  --cor-borda: #eccbb4;
+  --cor-acerto: #c07a3a;
+  --cor-erro: #8b1e1e;
   /* Texto sobre --cor-primaria, --cor-acerto e --cor-erro */
   --cor-texto-claro: #ffffff;
 
