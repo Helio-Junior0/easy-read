@@ -192,7 +192,7 @@ async function remover() {
   gap: 1.75rem;
   padding: 1.5rem;
   background: var(--cor-superficie);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--cor-borda);
   border-radius: var(--raio);
 }
 
@@ -207,12 +207,6 @@ async function remover() {
   color: var(--cor-texto-claro);
   border-radius: 10px;
   box-shadow: inset 0 0 0 4px var(--cor-destaque);
-}
-
-.capa__numero {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1;
 }
 
 .capa__texto {
@@ -247,7 +241,7 @@ async function remover() {
 .autor {
   margin: 0;
   font-size: 1rem;
-  opacity: 0.7;
+  color: var(--cor-texto-suave);
 }
 
 /* Estatísticas */
@@ -262,7 +256,7 @@ async function remover() {
   display: grid;
   gap: 0.1rem;
   padding: 0.75rem;
-  background: var(--cor-fundo, rgba(0, 0, 0, 0.03));
+  background: var(--cor-destaque);
   border-radius: 10px;
   text-align: center;
 }
@@ -275,7 +269,7 @@ async function remover() {
 
 .stat__rotulo {
   font-size: 0.8rem;
-  opacity: 0.7;
+  color: var(--cor-texto-suave);
 }
 
 /* Barra de progresso */
@@ -294,7 +288,7 @@ async function remover() {
 
 .progresso__barra {
   height: 10px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--cor-destaque);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -324,7 +318,7 @@ async function remover() {
 
 .secao-contagem {
   font-size: 0.9rem;
-  opacity: 0.7;
+  color: var(--cor-texto-suave);
 }
 
 /* Dentro do grid, o botão de voltar e o rótulo não devem esticar */
@@ -349,7 +343,7 @@ async function remover() {
   height: 100%;
   padding: 1rem 1.1rem;
   background: var(--cor-superficie);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--cor-borda);
   border-top: 4px solid var(--cor-secundaria);
   border-radius: var(--raio);
   color: inherit;
@@ -357,7 +351,7 @@ async function remover() {
 }
 
 .card:hover {
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--sombra);
 }
 
 .card__topo {
@@ -375,14 +369,15 @@ async function remover() {
   padding: 0.15rem 0.55rem;
   font-size: 0.75rem;
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.07);
+  background: var(--cor-destaque);
+  color: var(--cor-texto);
   border-radius: 999px;
 }
 
 .card__meta {
   margin: 0;
   font-size: 0.9rem;
-  opacity: 0.75;
+  color: var(--cor-texto-suave);
 }
 
 .card__rodape {
@@ -390,7 +385,7 @@ async function remover() {
   justify-content: space-between;
   align-items: center;
   padding-top: 0.5rem;
-  border-top: 1px dashed rgba(0, 0, 0, 0.12);
+  border-top: 1px dashed var(--cor-borda);
 }
 
 .card__acao,
@@ -414,7 +409,7 @@ async function remover() {
 .descricao {
   margin: 0.25rem 0 0;
   line-height: 1.55;
-  opacity: 0.85;
+  color: var(--cor-texto-suave);
 }
 
 .acoes {
@@ -443,7 +438,7 @@ async function remover() {
 
 .vazio {
   margin: 0;
-  opacity: 0.8;
+  color: var(--cor-texto-suave);
 }
 
 .aviso {
@@ -457,13 +452,13 @@ async function remover() {
   gap: 0.5rem;
   justify-items: start;
   padding-top: 1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--cor-borda);
   font-size: 0.9rem;
 }
 
 .licenca {
   margin: 0;
-  opacity: 0.7;
+  color: var(--cor-texto-suave);
 }
 
 .botao-texto {

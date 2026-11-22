@@ -308,13 +308,12 @@ function novoIntervalo() {
 .apoio {
   margin: 0;
   line-height: 1.55;
-  opacity: 0.85;
+  color: var(--cor-texto-suave);
 }
 
 .apoio--alerta {
   font-weight: 700;
   color: var(--cor-erro);
-  opacity: 1;
 }
 
 .erro {
@@ -346,8 +345,9 @@ function novoIntervalo() {
   font-size: 1.25rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  background: var(--cor-fundo);
-  border: 2px solid transparent;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
   border-radius: 10px;
 }
 
@@ -399,12 +399,12 @@ function novoIntervalo() {
 
 .retorno--certo {
   color: var(--cor-acerto);
-  background: color-mix(in srgb, var(--cor-acerto) 14%, var(--cor-fundo));
+  background: color-mix(in srgb, var(--cor-acerto) 14%, var(--cor-superficie));
 }
 
 .retorno--errado {
   color: var(--cor-erro);
-  background: color-mix(in srgb, var(--cor-erro) 10%, var(--cor-fundo));
+  background: color-mix(in srgb, var(--cor-erro) 10%, var(--cor-superficie));
 }
 
 .placar {
@@ -418,7 +418,7 @@ function novoIntervalo() {
 
 .placar span {
   font-size: 2rem;
-  opacity: 0.6;
+  color: var(--cor-texto-suave);
 }
 
 .girando {

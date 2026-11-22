@@ -180,7 +180,7 @@ function sairDoAdmin() {
 .menu__link:hover,
 .menu__link--ativo {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(245, 245, 245, 0.12);
 }
 
 .barra-app__fim {
@@ -199,15 +199,15 @@ function sairDoAdmin() {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: inherit;
+  color: var(--cor-texto);
   text-decoration: none;
-  background: var(--cor-secundaria);
+  background: var(--cor-destaque);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
 }
 
 .botao-continuar:hover {
-  background: color-mix(in srgb, var(--cor-secundaria) 80%, #fff);
+  background: color-mix(in srgb, var(--cor-destaque) 85%, #fff);
 }
 
 .selo-admin {
