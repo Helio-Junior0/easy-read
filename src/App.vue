@@ -2,6 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { admin, sair } from './services/adminService'
+import { conta, sair as sairDaConta } from './services/contaService'
+import { buscarPlano } from './shared/planos'
 import { buscarOndeContinuar } from './services/leituraService'
 
 const route = useRoute()
@@ -9,6 +11,28 @@ const router = useRouter()
 
 // No leitor o cabeçalho não fica preso no topo: quem fica é a barra de leitura
 const lendo = computed(() => route.name === 'leitor')
+
+// Nas telas de entrar e cadastro o cabeçalho mostra só a marca
+const telaDeConta = computed(() => route.meta.telaDeConta === true)
+const comMenu = computed(() => !telaDeConta.value && (!!conta.usuario || admin.logado))
+
+const plano = computed(() => buscarPlano(conta.usuario?.plano))
+const iniciais = computed(() =>
+  (conta.usuario?.nome ?? '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]!.toUpperCase())
+    .join(''),
+)
+
+const menuAberto = ref(false)
+watch(() => route.fullPath, () => (menuAberto.value = false))
+
+function sairDaContaAtual() {
+  sairDaConta()
+  router.push('/entrar')
+}
 
 // Para onde "Modo Leitura" e "Continuar" levam: a próxima página do último livro lido
 const continuar = ref<string | null>(null)
@@ -48,7 +72,7 @@ function sairDoAdmin() {
         </span>
       </RouterLink>
 
-      <nav class="menu" aria-label="Menu principal">
+      <nav v-if="comMenu" class="menu" aria-label="Menu principal">
         <RouterLink to="/" class="menu__link" exact-active-class="menu__link--ativo">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
             <path d="M4 5.2c2.6 0 4.8.5 6.9 1.7v12c-2.1-1.1-4.3-1.6-6.9-1.6V5.2Zm16 0v12.1c-2.6 0-4.8.5-6.9 1.6v-12c2.1-1.2 4.3-1.7 6.9-1.7Z" />
@@ -63,9 +87,32 @@ function sairDoAdmin() {
         </RouterLink>
       </nav>
 
-      <div class="barra-app__fim">
+      <div v-if="comMenu" class="barra-app__fim">
         <span v-if="admin.logado" class="selo-admin">Administrador</span>
         <RouterLink v-if="continuar && !lendo" :to="continuar" class="botao-continuar">Continuar</RouterLink>
+
+        <!-- Conta do usuário -->
+        <div v-if="conta.usuario" class="usuario">
+          <button
+            type="button"
+            class="usuario__botao"
+            :aria-expanded="menuAberto"
+            aria-haspopup="true"
+            :aria-label="`Conta de ${conta.usuario.nome}`"
+            @click="menuAberto = !menuAberto"
+          >
+            <span class="usuario__avatar" aria-hidden="true">{{ iniciais }}</span>
+          </button>
+
+          <div v-if="menuAberto" class="usuario__menu">
+            <p class="usuario__nome">{{ conta.usuario.nome }}</p>
+            <p class="usuario__email">{{ conta.usuario.email }}</p>
+            <RouterLink to="/planos" class="usuario__plano">
+              Plano {{ plano.nome }} <span aria-hidden="true">›</span>
+            </RouterLink>
+            <button type="button" class="usuario__sair" @click="sairDaContaAtual">Sair da conta</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -89,6 +136,8 @@ function sairDoAdmin() {
       <RouterView />
     </main>
   </div>
+
+  <div v-if="menuAberto" class="fundo-menu" @click="menuAberto = false" />
 
   <footer v-if="!admin.logado && !lendo" class="rodape-app">
     <RouterLink to="/admin/login">Área do administrador</RouterLink>
@@ -208,6 +257,107 @@ function sairDoAdmin() {
 
 .botao-continuar:hover {
   background: color-mix(in srgb, var(--cor-destaque) 85%, #fff);
+}
+
+.usuario {
+  position: relative;
+}
+
+.usuario__botao {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.usuario__avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--cor-primaria-escura);
+  background: var(--cor-destaque);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+}
+
+.usuario__menu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  gap: 0.25rem;
+  width: 240px;
+  padding: 1rem;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+.usuario__nome {
+  margin: 0;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario__email {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario__plano,
+.usuario__sair {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.usuario__plano {
+  color: var(--cor-primaria);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--cor-destaque) 45%, transparent);
+}
+
+.usuario__sair {
+  color: var(--cor-texto-suave);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.usuario__sair:hover {
+  color: var(--cor-erro);
+}
+
+.fundo-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
 }
 
 .selo-admin {

@@ -17,9 +17,9 @@ it('migra o banco antigo (v3, capítulos) para o novo sem erro', async () => {
 
   const { db } = await import('../src/db/index')
   await db.open()
-  expect(db.verno).toBe(5)
+  expect(db.verno).toBe(6)
   expect(await db.livros.count()).toBe(0)
-  expect(db.tables.map((t) => t.name).sort()).toEqual(['leituras', 'livros', 'paginas', 'revisoes', 'tentativas'])
+  expect(db.tables.map((t) => t.name).sort()).toEqual(['leituras', 'livros', 'paginas', 'revisoes', 'tentativas', 'usuarios'])
   await db.livros.add({ slug: 'a', titulo: 'A', autor: 'B', arquivo: 'livros/a.md', totalPaginas: 1, baixadoEm: new Date() })
   expect(await db.livros.where('slug').equals('a').count()).toBe(1)
 })

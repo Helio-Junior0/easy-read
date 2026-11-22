@@ -10,6 +10,8 @@ import { buscarLivroPorId, buscarRevisao } from '../services/dbService'
 import { buscarProgresso, sugerirIntervalo } from '../services/leituraService'
 import { ErroRevisao, obterRevisao, registrarResultado } from '../services/revisaoService'
 import { MAX_PAGINAS_POR_REVISAO, minimoDePaginas } from '../shared/revisaoFormato'
+import { conta, revisoesRestantesHoje } from '../services/contaService'
+import { buscarPlano } from '../shared/planos'
 
 type Etapa = 'intervalo' | 'gerando' | 'resumo' | 'quiz' | 'resultado'
 
@@ -26,6 +28,11 @@ const inicio = ref(1)
 const fim = ref(1)
 const etapa = ref<Etapa>('intervalo')
 const erro = ref('')
+const erroDeLimite = ref(false)
+
+// Limite de revisões do plano da conta
+const plano = computed(() => buscarPlano(conta.usuario?.plano))
+const restantes = computed(() => revisoesRestantesHoje(conta.usuario))
 const revisao = ref<Revisao>()
 const jaSalva = ref(false)
 const resultadoSalvo = ref(false)
@@ -108,6 +115,7 @@ async function gerar(gerarNova = false) {
     etapa.value = 'resumo'
   } catch (e) {
     erro.value = e instanceof ErroRevisao ? e.message : 'Algo deu errado ao gerar a revisão. Tente de novo.'
+    erroDeLimite.value = e instanceof ErroRevisao && e.tipo === 'limite'
     if (!(e instanceof ErroRevisao)) console.error(e)
     etapa.value = revisao.value ? 'resumo' : 'intervalo'
   }
@@ -161,7 +169,10 @@ function novoIntervalo() {
     <template v-else>
       <p class="rotulo">Revisão · {{ livro.titulo }}</p>
 
-      <p v-if="erro" class="erro" role="alert">{{ erro }}</p>
+      <p v-if="erro" class="erro" role="alert">
+        {{ erro }}
+        <RouterLink v-if="erroDeLimite && conta.usuario" to="/planos" class="erro__link">Ver planos</RouterLink>
+      </p>
 
       <!-- 1. Escolher as páginas -->
       <form v-if="etapa === 'intervalo'" class="bloco" @submit.prevent="gerar(false)">
@@ -195,6 +206,11 @@ function novoIntervalo() {
         </p>
         <p v-else class="apoio">
           O resumo e o quiz são gerados por IA a partir destas páginas. Precisa de internet só na primeira vez.
+        </p>
+
+        <p v-if="restantes !== null" class="plano-uso" :class="{ 'plano-uso--zerado': restantes === 0 }">
+          Plano {{ plano.nome }}: {{ restantes }} de {{ plano.revisoesPorDia }} revisões com IA disponíveis hoje.
+          <RouterLink to="/planos">{{ restantes === 0 ? 'Ver planos' : 'Mudar de plano' }}</RouterLink>
         </p>
 
         <button type="submit" class="botao-principal" :disabled="quantidade < minimo || quantidade > MAX_PAGINAS_POR_REVISAO">
@@ -314,6 +330,29 @@ function novoIntervalo() {
 .apoio--alerta {
   font-weight: 700;
   color: var(--cor-erro);
+}
+
+.erro__link {
+  margin-left: 0.35rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+}
+
+.plano-uso {
+  margin: 0;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
+  background: color-mix(in srgb, var(--cor-destaque) 40%, transparent);
+  border-radius: 10px;
+}
+
+.plano-uso a {
+  font-weight: 700;
+}
+
+.plano-uso--zerado {
+  color: var(--cor-erro);
+  font-weight: 600;
 }
 
 .erro {

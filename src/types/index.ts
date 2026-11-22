@@ -65,3 +65,19 @@ export interface Tentativa {
   total: number;
   feitaEm: Date;
 }
+
+// Planos de assinatura (simulados: não há cobrança de verdade)
+export type PlanoId = 'gratis' | 'leitor' | 'premium';
+
+// Conta de usuário guardada só neste aparelho (demonstração)
+export interface Usuario {
+  id?: number;
+  nome: string;
+  email: string; // sempre em minúsculas
+  senhaHash: string;
+  sal: string;
+  plano: PlanoId;
+  criadoEm: Date;
+  // Revisões novas pedidas à IA no dia (para o limite do plano)
+  uso?: { dia: string; quantidade: number };
+}

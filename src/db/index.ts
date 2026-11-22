@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { Livro, Pagina, Leitura, Revisao, Tentativa } from '../types/index';
+import type { Livro, Pagina, Leitura, Revisao, Tentativa, Usuario } from '../types/index';
 
 export class EasyReadDatabase extends Dexie {
   livros!: Table<Livro, number>;
@@ -7,6 +7,7 @@ export class EasyReadDatabase extends Dexie {
   leituras!: Table<Leitura, [number, number]>;
   revisoes!: Table<Revisao, number>;
   tentativas!: Table<Tentativa, number>;
+  usuarios!: Table<Usuario, number>;
 
   constructor() {
     super('EasyReadDB');
@@ -34,6 +35,11 @@ export class EasyReadDatabase extends Dexie {
       leituras: '[livroId+pagina], livroId',
       revisoes: '++id, livroId, [livroId+inicio+fim]',
       tentativas: '++id, revisaoId, livroId'
+    });
+
+    // Versão 6: contas de usuário guardadas no aparelho
+    this.version(6).stores({
+      usuarios: '++id, &email'
     });
   }
 }

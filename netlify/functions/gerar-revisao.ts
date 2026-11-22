@@ -6,7 +6,7 @@
 //   GEMINI_MODEL    -> opcional, padrão "gemini-3.5-flash-lite". Se o modelo escolhido
 //                      não estiver disponível para a chave, a função tenta os de MODELOS_RESERVA.
 //   LIMITE_DIARIO      -> opcional, revisões novas por dia no app inteiro (padrão 150).
-//   LIMITE_POR_PESSOA  -> opcional, revisões novas por dia por pessoa/internet (padrão 10).
+//   LIMITE_POR_PESSOA  -> opcional, revisões novas por dia por endereço de internet (padrão 40).
 //
 // Para economizar a cota do Gemini:
 // - toda revisão gerada fica guardada no Netlify Blobs; se outra pessoa pedir as mesmas
@@ -50,7 +50,9 @@ function configuracaoDoModelo(modelo: string): Record<string, unknown> {
 const MAX_CARACTERES = 200_000;
 const TENTATIVAS = 1; // cada tentativa gasta um pedido da cota
 const LIMITE_DIARIO_PADRAO = 150;
-const LIMITE_POR_PESSOA_PADRAO = 10;
+// Alto o bastante para várias pessoas na mesma rede (ex.: Wi-Fi da feira);
+// o limite de cada conta vem do plano, no app.
+const LIMITE_POR_PESSOA_PADRAO = 40;
 
 export const config = { path: '/api/gerar-revisao' };
 

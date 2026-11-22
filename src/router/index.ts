@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { adminLogado } from '../services/adminService'
+import { carregarSessao } from '../services/contaService'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,23 @@ const router = createRouter({
       props: true,
     },
     {
+      path: '/entrar',
+      name: 'entrar',
+      component: () => import('../views/conta/EntrarView.vue'),
+      meta: { publica: true, telaDeConta: true },
+    },
+    {
+      path: '/cadastro',
+      name: 'cadastro',
+      component: () => import('../views/conta/CadastroView.vue'),
+      meta: { publica: true, telaDeConta: true },
+    },
+    {
+      path: '/planos',
+      name: 'planos',
+      component: () => import('../views/conta/PlanosView.vue'),
+    },
+    {
       path: '/admin',
       redirect: '/admin/livros',
     },
@@ -35,6 +53,7 @@ const router = createRouter({
       path: '/admin/login',
       name: 'admin-login',
       component: () => import('../views/admin/LoginView.vue'),
+      meta: { publica: true },
     },
     {
       path: '/admin/livros',
@@ -52,6 +71,7 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'nao-encontrado',
       component: () => import('../views/NotFoundView.vue'),
+      meta: { publica: true },
     },
   ],
   scrollBehavior() {
@@ -61,12 +81,24 @@ const router = createRouter({
 
 // Telas de administração só abrem para quem fez login como admin.
 // A proteção de verdade é no servidor: sem o token, as funções recusam adicionar ou excluir.
-router.beforeEach((para) => {
-  if (para.meta.somenteAdmin && !adminLogado()) {
+router.beforeEach(async (para) => {
+  const admin = adminLogado()
+
+  if (para.meta.somenteAdmin && !admin) {
     return { name: 'admin-login', query: { voltar: para.fullPath } }
   }
-  if (para.name === 'admin-login' && adminLogado()) {
+  if (para.name === 'admin-login' && admin) {
     return { name: 'admin-livros' }
+  }
+
+  // Login obrigatório para usar o app (o admin logado também pode navegar)
+  const usuario = await carregarSessao()
+  if (!para.meta.publica && !usuario && !admin) {
+    return { name: 'entrar', query: para.fullPath === '/' ? {} : { voltar: para.fullPath } }
+  }
+  // Quem já entrou não precisa ver as telas de entrar e cadastro
+  if (para.meta.telaDeConta && usuario) {
+    return '/'
   }
   return true
 })
