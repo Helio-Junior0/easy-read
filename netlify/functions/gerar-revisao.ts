@@ -3,7 +3,8 @@
 // Endereço: POST /api/gerar-revisao
 // Variáveis de ambiente (Netlify > Site configuration > Environment variables):
 //   GEMINI_API_KEY  -> obrigatória (Google AI Studio). Nunca colocar no código.
-//   GEMINI_MODEL    -> opcional, padrão "gemini-2.5-flash".
+//   GEMINI_MODEL    -> opcional, padrão "gemini-3.5-flash-lite". Se o modelo escolhido
+//                      não estiver disponível para a chave, a função tenta os de MODELOS_RESERVA.
 //   LIMITE_DIARIO      -> opcional, revisões novas por dia no app inteiro (padrão 150).
 //   LIMITE_POR_PESSOA  -> opcional, revisões novas por dia por pessoa/internet (padrão 10).
 //
@@ -25,10 +26,17 @@ import {
   type RevisaoGerada,
 } from '../../src/shared/revisaoFormato';
 
-const MODELO_PADRAO = 'gemini-2.5-flash';
+// O Google recomenda os modelos mais novos para projetos novos; o Flash-Lite é o mais rápido
+// (cabe nos 10 segundos do Netlify) e o que tem a cota grátis mais folgada.
+const MODELO_PADRAO = 'gemini-3.5-flash-lite';
+const MODELOS_RESERVA = ['gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
 
 class LimiteDaIA extends Error {}
 class DemorouDemais extends Error {}
+// Modelo inexistente ou não liberado para esta chave: dá para tentar outro
+class ModeloIndisponivel extends Error {}
+// Erro do Gemini com a explicação que ele mesmo mandou (vai para a tela, para facilitar o conserto)
+class ErroDoGemini extends Error {}
 
 // O Netlify (plano grátis) encerra a função em 10 segundos. Desistimos um pouco antes
 // para devolver uma mensagem clara em vez de um erro sem explicação.
@@ -122,14 +130,28 @@ const ESQUEMA_RESPOSTA = {
   required: ['resumo', 'perguntas'],
 };
 
-async function chamarGemini(prompt: string, chave: string, modelo: string): Promise<unknown> {
+// Lê a explicação que o Google manda junto com o erro ({ error: { message } })
+function explicacaoDoErro(texto: string): string {
+  try {
+    const msg = (JSON.parse(texto) as { error?: { message?: string } }).error?.message;
+    if (msg) return msg.slice(0, 200);
+  } catch {
+    // não era JSON
+  }
+  return texto.slice(0, 200);
+}
+
+async function chamarGemini(prompt: string, chave: string, modelo: string, prazo: number): Promise<unknown> {
+  const restante = prazo - Date.now();
+  if (restante <= 500) throw new DemorouDemais('Sem tempo para chamar o Gemini.');
+
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`;
   let resposta: Response;
   try {
     resposta = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': chave },
-      signal: AbortSignal.timeout(TEMPO_MAXIMO_MS),
+      signal: AbortSignal.timeout(restante),
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
@@ -149,15 +171,23 @@ async function chamarGemini(prompt: string, chave: string, modelo: string): Prom
 
   if (resposta.status === 429) throw new LimiteDaIA('Cota do Gemini esgotada.');
   if (!resposta.ok) {
-    const detalhe = await resposta.text().catch(() => '');
-    throw new Error(`Gemini respondeu ${resposta.status}: ${detalhe.slice(0, 300)}`);
+    const detalhe = explicacaoDoErro(await resposta.text().catch(() => ''));
+    const ehModelo = resposta.status === 404 || (resposta.status === 400 && /model/i.test(detalhe));
+    const texto = `Gemini (${modelo}) respondeu ${resposta.status}: ${detalhe}`;
+    throw ehModelo ? new ModeloIndisponivel(texto) : new ErroDoGemini(texto);
   }
 
   const dados = (await resposta.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
+    candidates?: { finishReason?: string; content?: { parts?: { text?: string; thought?: boolean }[] } }[];
   };
-  const texto = dados.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';
-  return JSON.parse(texto);
+  const candidato = dados.candidates?.[0];
+  const texto = candidato?.content?.parts?.filter((p) => !p.thought).map((p) => p.text ?? '').join('') ?? '';
+  if (!texto) throw new ErroDoGemini(`Gemini (${modelo}) respondeu vazio (${candidato?.finishReason ?? 'sem motivo'}).`);
+  try {
+    return JSON.parse(texto);
+  } catch {
+    throw new ErroDoGemini(`Gemini (${modelo}) respondeu fora do formato (${candidato?.finishReason ?? 'sem motivo'}).`);
+  }
 }
 
 export async function gerarRevisao(
@@ -166,16 +196,28 @@ export async function gerarRevisao(
   modelo = MODELO_PADRAO,
 ): Promise<RevisaoGerada> {
   const prompt = montarPrompt(pedido);
+  const prazo = Date.now() + TEMPO_MAXIMO_MS;
+  // O modelo escolhido primeiro; se ele não existir para esta chave, os de reserva
+  const modelos = [...new Set([modelo, ...MODELOS_RESERVA])];
   let ultimoErro: unknown;
 
-  for (let i = 0; i < TENTATIVAS; i++) {
-    try {
-      const bruto = await chamarGemini(prompt, chave, modelo);
-      return validarRevisaoGerada(bruto, pedido.inicio, pedido.fim);
-    } catch (erro) {
-      if (erro instanceof LimiteDaIA || erro instanceof DemorouDemais) throw erro;
-      ultimoErro = erro;
+  for (const atual of modelos) {
+    for (let i = 0; i < TENTATIVAS; i++) {
+      try {
+        const bruto = await chamarGemini(prompt, chave, atual, prazo);
+        return validarRevisaoGerada(bruto, pedido.inicio, pedido.fim);
+      } catch (erro) {
+        if (!(erro instanceof ModeloIndisponivel)) {
+          if (erro instanceof LimiteDaIA || erro instanceof DemorouDemais) throw erro;
+          ultimoErro = erro;
+          continue;
+        }
+        console.warn(erro.message);
+        ultimoErro = erro;
+        break; // próximo modelo
+      }
     }
+    if (!(ultimoErro instanceof ModeloIndisponivel)) break;
   }
   throw ultimoErro;
 }
@@ -290,6 +332,11 @@ export default async (req: Request, context?: Context): Promise<Response> => {
       return json(504, { erro: 'A IA demorou demais para responder. Tente de novo, ou escolha menos páginas.' });
     }
     console.error('Falha ao gerar revisão:', erro);
-    return json(502, { erro: 'A IA não conseguiu gerar a revisão agora. Tente de novo em instantes.' });
+    // Mostra o motivo na tela: sem isso só dá para descobrir olhando os logs do Netlify
+    const motivo =
+      erro instanceof ErroDoGemini || erro instanceof ModeloIndisponivel
+        ? erro.message
+        : (erro as Error)?.message?.slice(0, 200) || 'erro desconhecido';
+    return json(502, { erro: `A IA não conseguiu gerar a revisão agora. Motivo: ${motivo}` });
   }
 };

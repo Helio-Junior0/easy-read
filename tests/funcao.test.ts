@@ -138,6 +138,7 @@ describe('função gerar-revisao', () => {
 
   it('desliga o raciocínio do 2.5 Flash para responder dentro dos 10 segundos', async () => {
     vi.stubEnv('GEMINI_API_KEY', 'chave')
+    vi.stubEnv('GEMINI_MODEL', 'gemini-2.5-flash')
     const fetchMock = vi.fn(async () => respostaGemini(revisaoOk))
     vi.stubGlobal('fetch', fetchMock)
     await handler(req(pedido), ctx('1.1.1.1'))
@@ -148,6 +149,46 @@ describe('função gerar-revisao', () => {
     vi.stubEnv('GEMINI_MODEL', 'gemini-2.5-pro')
     await handler(req({ ...pedido, nova: true }), ctx('1.1.1.1'))
     expect(JSON.parse((fetchMock.mock.calls[1] as any)[1].body).generationConfig.thinkingConfig).toBeUndefined()
+  })
+
+  it('usa o modelo novo por padrão e passa para o de reserva se ele não existir para a chave', async () => {
+    vi.stubEnv('GEMINI_API_KEY', 'chave')
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const urls: string[] = []
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      urls.push(url)
+      if (url.includes('gemini-3.5-flash-lite')) {
+        return new Response(JSON.stringify({ error: { code: 404, message: 'models/gemini-3.5-flash-lite is not found' } }), { status: 404 })
+      }
+      return respostaGemini(revisaoOk)
+    }))
+    const r = await handler(req(pedido), ctx('1.1.1.1'))
+    expect(r.status).toBe(200)
+    expect(urls[0]).toContain('gemini-3.5-flash-lite')
+    expect(urls[1]).toContain('gemini-2.5-flash-lite')
+    expect(urls).toHaveLength(2)
+  })
+
+  it('mostra na tela o motivo que o Gemini deu para recusar', async () => {
+    vi.stubEnv('GEMINI_API_KEY', 'chave')
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({ error: { code: 403, message: 'API key not valid. Please pass a valid API key.' } }), { status: 403 })))
+    const r = await handler(req(pedido), ctx('1.1.1.1'))
+    expect(r.status).toBe(502)
+    const { erro } = await r.json()
+    expect(erro).toContain('403')
+    expect(erro).toContain('API key not valid')
+    expect(erro).not.toContain('chave')
+  })
+
+  it('resposta vazia ou cortada do Gemini explica o motivo', async () => {
+    vi.stubEnv('GEMINI_API_KEY', 'chave')
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.stubGlobal('fetch', vi.fn(async () =>
+      new Response(JSON.stringify({ candidates: [{ finishReason: 'MAX_TOKENS', content: { parts: [{ text: '{"resumo": "cort' }] } }] }))))
+    const r = await handler(req(pedido), ctx('1.1.1.1'))
+    expect((await r.json()).erro).toContain('MAX_TOKENS')
   })
 
   it('IA lenta vira 504 com mensagem clara', async () => {
