@@ -80,7 +80,7 @@ a:hover {
 }
 
 :focus-visible {
-  outline: 3px solid var(--cor-secundaria);
+  outline: 3px solid var(--cor-primaria);
   outline-offset: 2px;
 }
 

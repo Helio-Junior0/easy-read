@@ -372,4 +372,3 @@ const contagem = computed(() => {
   }
 }
 </style>
- 
