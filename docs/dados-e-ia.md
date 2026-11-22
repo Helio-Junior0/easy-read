@@ -50,6 +50,26 @@ Para livros que devem vir junto com o app:
 
 O `slug` não pode se repetir. Os dados e o sumário dos outros livros escolhidos pelo grupo estão em `docs/livros-planejados.json`.
 
+## Contas e planos
+
+O uso do app exige login. A conta (nome, e-mail e senha) fica guardada **só no aparelho**, na tabela `usuarios` do IndexedDB: é uma demonstração para o projeto acadêmico, não existe em outros aparelhos e some se os dados do navegador forem apagados. A senha não é guardada, só um hash PBKDF2 com sal.
+
+| Tela | Endereço |
+|---|---|
+| Entrar | `/entrar` |
+| Criar conta | `/cadastro` (depois do cadastro abre os planos) |
+| Planos | `/planos` |
+
+Planos (definidos em `src/shared/planos.ts`):
+
+| Plano | Preço | Revisões com IA por dia |
+|---|---|---|
+| Grátis | R$ 0 | 3 |
+| Leitor | R$ 9,90/mês | 15, e pode gerar novas perguntas para o mesmo trecho |
+| Premium | R$ 19,90/mês | 40 |
+
+O pagamento é simulado: "Assinar" abre um resumo, e "Confirmar" só troca o plano da conta, sem cobrança e sem pedir dados de cartão. O limite conta apenas revisões novas geradas pela IA; abrir uma revisão salva, ou receber uma que já estava pronta no servidor, não gasta o limite. O admin logado não tem limite.
+
 ## Telas
 
 | Endereço | Tela |
@@ -58,6 +78,8 @@ O `slug` não pode se repetir. Os dados e o sumário dos outros livros escolhido
 | `/livro/:id` | Livro: progresso, continuar leitura e revisões feitas |
 | `/livro/:id/pagina/:n` | Leitor: uma página por vez, marca como lida ao avançar |
 | `/livro/:id/revisao` | Revisão: escolher páginas, resumo e quiz da IA |
+| `/entrar`, `/cadastro` | Entrar e criar conta (obrigatório para usar o app) |
+| `/planos` | Planos e pagamento simulado |
 | `/admin/login` | Login do administrador |
 | `/admin/livros` | Gerenciar livros (só admin) |
 | `/admin/livros/novo` | Adicionar livro (só admin) |
@@ -142,7 +164,7 @@ A cota grátis do Gemini é pequena, então a função `gerar-revisao` economiza
 
 - **Cache compartilhado:** toda revisão gerada fica guardada no Netlify Blobs. Se outra pessoa pedir as mesmas páginas do mesmo livro, recebe a guardada, sem chamar a IA e sem contar no limite.
 - **Limite diário geral:** `LIMITE_DIARIO` (padrão 150) revisões novas por dia no app inteiro.
-- **Limite por pessoa:** `LIMITE_POR_PESSOA` (padrão 10) revisões novas por dia por endereço de internet. O endereço é guardado só como código (hash).
+- **Limite por pessoa:** `LIMITE_POR_PESSOA` (padrão 40) revisões novas por dia por endereço de internet. É alto porque várias pessoas na mesma rede (ex.: Wi-Fi da feira) aparecem com o mesmo endereço; o limite de cada conta vem do plano. O endereço é guardado só como código (hash).
 - **Admin sem limite:** quem está logado como admin não entra na contagem.
 - **Uma tentativa só:** se a IA responder fora do formato, a função não tenta de novo (cada tentativa gasta cota).
 - **Mínimo de 3 páginas** por revisão (menos que isso só em livro com menos de 3 páginas).
@@ -163,7 +185,7 @@ O `netlify dev` usa as variáveis cadastradas no Netlify. No Deploy Preview de c
 
 ## Banco (IndexedDB / Dexie)
 
-Versão 5 do `EasyReadDB`:
+Versão 6 do `EasyReadDB`:
 
 | Tabela | Chave | Guarda |
 |---|---|---|
@@ -172,8 +194,9 @@ Versão 5 do `EasyReadDB`:
 | `leituras` | `[livroId+pagina]` | páginas lidas |
 | `revisoes` | `++id`, `[livroId+inicio+fim]` | resumo e perguntas gerados |
 | `tentativas` | `++id`, `revisaoId` | resultado de cada quiz |
+| `usuarios` | `++id`, `&email` | contas do aparelho, plano e uso do dia |
 
-As tabelas antigas (capítulos, resumos e quizzes fixos) são apagadas automaticamente na atualização. Próxima mudança de estrutura: `version(6)`.
+As tabelas antigas (capítulos, resumos e quizzes fixos) são apagadas automaticamente na atualização. Próxima mudança de estrutura: `version(7)`.
 
 ## Paginação
 
@@ -186,3 +209,4 @@ npm test
 ```
 
 Cobrem a paginação, o download, as páginas lidas, a revisão (com a IA simulada), a migração do banco antigo, a função de IA, o login do admin e o envio de livros.
+

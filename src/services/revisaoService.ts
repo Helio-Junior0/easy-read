@@ -18,7 +18,9 @@ import {
   salvarRevisao,
   salvarTentativa,
 } from './dbService';
-import { cabecalhoAdminSeLogado } from './adminService';
+import { adminLogado, cabecalhoAdminSeLogado } from './adminService';
+import { conta, registrarRevisaoNova, revisoesRestantesHoje } from './contaService';
+import { buscarPlano } from '../shared/planos';
 
 export const URL_GERAR_REVISAO = '/api/gerar-revisao';
 
@@ -71,6 +73,21 @@ export async function obterRevisao(
 
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     throw new ErroRevisao('offline', 'Sem internet. Conecte-se para gerar a revisão destas páginas.');
+  }
+
+  // Limite do plano da conta (o admin não tem limite)
+  const usuario = conta.usuario;
+  if (usuario && !adminLogado()) {
+    const plano = buscarPlano(usuario.plano);
+    if (opcoes.gerarNova && plano.id === 'gratis') {
+      throw new ErroRevisao('limite', 'Gerar novas perguntas para o mesmo trecho faz parte dos planos Leitor e Premium.');
+    }
+    if (revisoesRestantesHoje(usuario) === 0) {
+      throw new ErroRevisao(
+        'limite',
+        `Você já usou as ${plano.revisoesPorDia} revisões com IA do plano ${plano.nome} hoje. As revisões salvas continuam disponíveis, e amanhã libera de novo.`,
+      );
+    }
   }
 
   const paginas = await buscarPaginas(livroId, inicio, fim);
@@ -128,6 +145,10 @@ export async function obterRevisao(
     criadaEm: new Date(),
   };
   const id = await salvarRevisao(revisao);
+
+  // Revisão que já estava pronta no servidor (outra pessoa gerou) não gasta o limite do plano
+  if (!(corpo as { reaproveitada?: boolean }).reaproveitada) await registrarRevisaoNova();
+
   return { ...revisao, id };
 }
 
